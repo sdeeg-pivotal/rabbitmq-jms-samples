@@ -1,0 +1,7 @@
+amqp:
+  uri: amqp://admin:admin@headless1
+test:
+  message: abc
+  nummessages: 5
+  delay: 100
+  size: -1

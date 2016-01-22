@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.pivotal.pa</groupId>
+  <artifactId>rabbitmq-jms-simple-webapp</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>simple-jms Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+<dependency>
+	<groupId>org.apache.openejb</groupId>
+	<artifactId>apache-tomee</artifactId>
+	<version>1.7.3</version>
+</dependency>
+<dependency>
+	<groupId>com.rabbitmq.jms</groupId>
+	<artifactId>rabbitmq-jms</artifactId>
+	<version>1.4.7-SNAPSHOT</version>
+</dependency>
+<dependency>
+	<groupId>org.slf4j</groupId>
+	<artifactId>slf4j-api</artifactId>
+	<version>1.7.13</version>
+</dependency>
+<dependency>
+	<groupId>org.apache.geronimo.specs</groupId>
+	<artifactId>geronimo-jms_1.1_spec</artifactId>
+	<version>1.1.1</version>
+</dependency>
+<dependency>
+	<groupId>com.rabbitmq</groupId>
+	<artifactId>amqp-client</artifactId>
+	<version>3.5.6</version>
+</dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>simple-jms</finalName>
+  </build>
+</project>
