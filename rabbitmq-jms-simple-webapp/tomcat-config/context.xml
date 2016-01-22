@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<Context>
+    <!-- Default set of monitored resources -->
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+      <ResourceLink name="jms/VisaJMSConnectionFactory"
+            global="jms/VisaJMSConnectionFactory"
+            type="javax.jms.ConnectionFactory" />
+      <ResourceLink name="jms/VisaJMSQueue"
+            global="jms/VisaJMSQueue"
+            type="javax.jms.Queue" />
+      <ResourceLink name="jms/VisaJMSTopic"
+            global="jms/VisaJMSTopic"
+            type="javax.jms.Topic" />
+      <ResourceLink name="jms/VisaJMSDestination"
+            global="jms/VisaJMSDestination"
+            type="javax.jms.Destination" />
+    <!-- Uncomment this to disable session persistence across Tomcat restarts -->
+    <!--
+        <Manager pathname="" />
+        -->
+    <!-- Uncomment this to enable Comet connection tacking (provides events
+             on session expiration as well as webapp lifecycle) -->
+    <!--
+        <Valve className="org.apache.catalina.valves.CometConnectionManagerValve" />
+        -->
+</Context>
