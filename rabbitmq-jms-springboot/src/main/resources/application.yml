@@ -1,7 +1,22 @@
+spring:
+  profiles:
+    active: show-usage
+
+logging:
+  level:
+    root: ERROR
+    org:
+      springframework: WARN
+
 amqp:
-  uri: amqp://admin:admin@headless1
+#  uri: amqp://guest:guest@localhost
+  host: localhost
+  username: guest
+  password: guest
+  vhost: /
 test:
-  message: abc
-  nummessages: 5
+  message: default-message
+  nummessages: 1
   delay: 100
-  size: -1
+  size: -1 #in K bytes
+  queue: test.queue

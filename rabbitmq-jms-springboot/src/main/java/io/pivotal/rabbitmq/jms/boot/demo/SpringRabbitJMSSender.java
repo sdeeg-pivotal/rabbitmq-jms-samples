@@ -58,7 +58,6 @@ public class SpringRabbitJMSSender implements CommandLineRunner {
 			};
 
 			// And publish to a RabbitMQ Queue using Spring's JmsTemplate
-
 			for(int c=0; c<numMessages; c++) {
 				jmsTemplate.send(queueName, messageCreator);
 				Thread.sleep(delay);
