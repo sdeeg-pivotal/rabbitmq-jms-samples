@@ -27,6 +27,14 @@
      virtualHost="/" 
             host="headless1" 
              ssl="false"/>
+<Resource   name="jms/VisaQueueConnectionFactory" 
+            type="javax.jms.QueueConnectionFactory" 
+         factory="com.rabbitmq.jms.admin.RMQObjectFactory" 
+        username="admin" 
+        password="admin" 
+     virtualHost="/" 
+            host="headless1" 
+             ssl="false"/>
           <Resource   name="jms/VisaJMSDestination"
               type="javax.jms.Topic"
            factory="com.rabbitmq.jms.admin.RMQObjectFactory"

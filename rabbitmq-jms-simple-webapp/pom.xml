@@ -41,6 +41,6 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>simple-jms</finalName>
+    <finalName>rabbitmq-jms-simple-webapp</finalName>
   </build>
 </project>

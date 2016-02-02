@@ -10,7 +10,7 @@ import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-public class Sender {
+public class SenderTopic {
 
 	@Resource(lookup = "java:comp/env/jms/ConnectionFactory")
 	private static ConnectionFactory connectionFactory;
@@ -30,7 +30,7 @@ public class Sender {
 		}
 
 		try {
-			retVal += "sending ... ";
+			retVal += "sending on a topic ... ";
 			Connection connection = connectionFactory.createConnection();
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			MessageProducer producer = session.createProducer(dest);

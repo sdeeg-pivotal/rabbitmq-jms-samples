@@ -19,6 +19,9 @@ public class SpringRabbitJMSConsumer {
 
 	@Value("${test.queue:test.queue}")
 	String queueName;
+	
+	@Value("${test.delay:100}")
+	long delay;
 
 	@Bean
 	public DefaultMessageListenerContainer jmsListener(ConnectionFactory connectionFactory) {
@@ -30,7 +33,7 @@ public class SpringRabbitJMSConsumer {
 		jmsListener.setDestinationName(queueName);
 		jmsListener.setPubSubDomain(false);
 
-		MessageListenerAdapter adapter = new MessageListenerAdapter(new Receiver());
+		MessageListenerAdapter adapter = new MessageListenerAdapter(new Receiver(this.delay));
 		adapter.setDefaultListenerMethod("receive");
 
 		jmsListener.setMessageListener(adapter);
@@ -38,9 +41,19 @@ public class SpringRabbitJMSConsumer {
 	}
 
 	static class Receiver {
+		
+		private long delay=100;
+		
+		public Receiver(long delay) {
+			this.delay = delay;
+		}
+		
 		public void receive(String message) {
 			if(message.length()>10) { message = message.substring(0, 10)+"..."; }
 			System.out.println("Received " + message);
+			try {
+				Thread.sleep(this.delay);
+			} catch(Exception ignore) {}
 		}
 	}
 
