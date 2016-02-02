@@ -4,11 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.pivotal.rabbitmq</groupId>
-	<artifactId>rabbitmq-jms-springboot</artifactId>
+	<artifactId>rabbitmq-jms-spring-template</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>spring-rabbit-jms-boot</name>
 	<description>Demo CLI program for MCP library</description>
 
 	<parent>
@@ -64,4 +63,5 @@
 	</build>
 
 
+	<name>rabbitmq-jms-spring-template</name>
 </project>
