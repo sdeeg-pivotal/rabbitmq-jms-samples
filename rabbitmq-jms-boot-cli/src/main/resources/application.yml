@@ -1,0 +1,8 @@
+logging:
+  level:
+    root: ERROR
+    org:
+      springframework: WARN
+    com:
+      rabbitmq: 
+        jms: TRACE

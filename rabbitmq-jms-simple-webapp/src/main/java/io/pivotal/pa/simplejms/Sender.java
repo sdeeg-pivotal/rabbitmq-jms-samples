@@ -10,15 +10,22 @@ import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Sender {
 
-	@Resource(lookup = "java:comp/env/jms/ConnectionFactory")
+    private final Logger log = LoggerFactory.getLogger(Sender.class);
+
+    @Resource(lookup = "java:comp/env/jms/ConnectionFactory")
 	private static ConnectionFactory connectionFactory;
 	
 	@Resource(lookup = "java:comp/env/jms/VisaJMSQueue")
 	private static Destination dest;
 	
-	public String doSend() {		
+	public String doSend() {
+		
+		log.warn("Hello");
 		String retVal = "run method in Sender";
 		
 		if(connectionFactory != null && dest != null) {
