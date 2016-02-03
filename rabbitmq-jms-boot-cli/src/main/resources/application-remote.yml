@@ -1,0 +1,4 @@
+jms:
+  host: headless1
+  username: admin
+  password: admin
