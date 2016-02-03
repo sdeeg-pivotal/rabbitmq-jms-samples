@@ -56,11 +56,11 @@ public class SendQueue implements JMSTest {
 			try {
 				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
 					message.setText("[" + messageCounter + "] " + messageStr);
-					System.out.println(LocalTime.now()+">Sending message [" + messageCounter + "]");
+					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
 					sender.send(message);
 					if (batchSize > 0) {
 						if ((messageCounter + 1) % batchSize == 0) {
-							System.out.println(LocalTime.now()+">Committing transaction");
+							System.out.println(LocalTime.now()+"> Committing transaction");
 							session.commit();
 						}
 					}
