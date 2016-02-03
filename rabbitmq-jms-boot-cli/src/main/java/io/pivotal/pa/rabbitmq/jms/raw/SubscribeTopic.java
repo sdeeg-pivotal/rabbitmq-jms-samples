@@ -26,18 +26,27 @@ public class SubscribeTopic implements JMSTest {
 
 	@Value("${topic:default.topic.name}")
 	String topicName;
+	
+	@Value("${durable:false}")
+    boolean durable;
 
 	@Override
 	public void run() throws Exception {
 		if (session != null) {
 			Topic topic = session.createTopic(topicName);
-			MessageConsumer consumer = session.createConsumer(topic);
+			MessageConsumer consumer = null;
+			if(durable) {
+				consumer = session.createDurableSubscriber(topic, "abc123");
+			} else {
+				consumer = session.createConsumer(topic);
+			}
 
 			System.out.println("Registering subscriber for topic " + topicName + " (enter 'x' to exit)");
 			consumer.setMessageListener(new SimpleMessageListener());
 
 			connection.start();
 
+			//Wait for the x
 			int ch;
 			while ((ch = System.in.read()) != -1) {
 				if (ch != '\n' && ch != '\r') {

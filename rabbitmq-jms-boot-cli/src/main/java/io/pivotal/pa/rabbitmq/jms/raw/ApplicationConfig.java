@@ -47,34 +47,34 @@ public class ApplicationConfig {
 		}
 		return connection;
 	}
-
-	/*
-	 *     static final int AUTO_ACKNOWLEDGE = 1;
-
-    static final int CLIENT_ACKNOWLEDGE = 2;
-
-    static final int DUPS_OK_ACKNOWLEDGE = 3;
-
-    static final int SESSION_TRANSACTED = 0;
-	 */
-	@Value("${jms.transacted:false}")
-	private boolean transacted;
 	
-	@Value("${jms.ack.mode:1}")
+	@Value("${jms.ack:1}")
 	private String ackModeStr;
+	
+	@Value("${batchsize:0}")
+	private int batchSize;
 	
 	@Bean
 	public Session jmsSession(Connection connection) {
 		Session session = null;
 		int ackMode = 0;
+		boolean transacted = false;
 		
-		if(transacted) { ackMode = Session.SESSION_TRANSACTED; }
+		if(batchSize>0) {
+			log.info("batchSize is "+batchSize+", setting transactions on.");
+			transacted = true;
+			ackMode = Session.SESSION_TRANSACTED;
+		}
 		else if("AUTO_ACKNOWLEDGE".equals(ackModeStr) || "1".equals(ackModeStr)) { ackMode = Session.AUTO_ACKNOWLEDGE; }
 		else if("CLIENT_ACKNOWLEDGE".equals(ackModeStr) || "2".equals(ackModeStr)) { ackMode = Session.CLIENT_ACKNOWLEDGE; }
 		else if("DUPS_OK_ACKNOWLEDGE".equals(ackModeStr) || "3".equals(ackModeStr)) { ackMode = Session.DUPS_OK_ACKNOWLEDGE; }
 		else if("SESSION_TRANSACTED".equals(ackModeStr) || "0".equals(ackModeStr)) {
+			transacted = true;
 			ackMode = Session.SESSION_TRANSACTED;
-			if(transacted==false) { log.warn("ACK mode set to SESSION_TRANSACTED, but transacted flag not passed.  Setting it to true."); }
+			if(batchSize<1) {
+				log.warn("ACK mode set to SESSION_TRANSACTED, but batchSize not set.  Setting it to 1.");
+				batchSize = 1;
+			}
 		}
 		else {
 			log.error("ACK mode \""+ackModeStr+"\" not set to a known type or value.  Using AUTO_ACKNOWLEDGE.");

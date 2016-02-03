@@ -1,5 +1,8 @@
 package io.pivotal.pa.rabbitmq.jms.raw;
 
+import java.time.LocalTime;
+import java.util.Date;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -11,12 +14,12 @@ public class SimpleMessageListener implements MessageListener {
 	public void onMessage(Message message) {
 		if (message instanceof TextMessage) {
 			try {
-				System.out.println("The TextMessage is: " + ((TextMessage) message).getText());
+				System.out.println(LocalTime.now()+"> The TextMessage is: " + ((TextMessage) message).getText());
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("The Message is: " + message.toString());
+			System.out.println(LocalTime.now()+"> The Message is: " + message.toString());
 		}
 	}
 

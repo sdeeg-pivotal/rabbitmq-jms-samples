@@ -7,11 +7,15 @@ jms:
   username: guest
   password: guest
   port: 5672
+  ack: AUTO_ACKNOWLEDGE
 
 delay: 100
 nummessages: 1
 message: default message
 queue: test.queue
+durable: false  #only useful in pub/sub
+batchsize: -1
+
 
 logging:
   level:

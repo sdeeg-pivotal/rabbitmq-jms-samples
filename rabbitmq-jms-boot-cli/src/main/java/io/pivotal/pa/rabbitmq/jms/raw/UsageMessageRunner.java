@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsageMessageRunner implements CommandLineRunner {
 
+	//TODO: Show contents of help file
 	@Override
 	public void run(String... arg0) throws Exception {
-		System.out.println("Usage:");
+		System.out.println("Usage: <show usage message>");
 	}
 
 }
