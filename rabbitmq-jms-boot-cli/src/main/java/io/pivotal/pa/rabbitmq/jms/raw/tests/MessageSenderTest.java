@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.rabbitmq.jms.admin.RMQDestination;
+
 //This bean is created in the SenderConfig class if appropriate profiles are set.
 public class MessageSenderTest implements JMSTest {
 
@@ -46,7 +48,7 @@ public class MessageSenderTest implements JMSTest {
 
 		if (session != null) {
 			System.out.println("Sending " + numMessages + " messages with a delay of " + delay + " and payload \""
-					+ messageStr + "\" to " + messageProducer.getDestination());
+					+ messageStr + "\" to destination " + ((RMQDestination)messageProducer.getDestination()).getDestinationName());
 			if (batchSize > 0) {
 				System.out.println("Transactions are on.  Using a batch of " + batchSize);
 			}

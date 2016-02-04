@@ -1,4 +1,7 @@
-jms:
-  host: headless1
-  username: admin
-  password: admin
+amqp:
+  uri: amqp://admin:admin@headless1/%2F
+logging:
+  level:
+    io:
+      pivotal:
+#        pa: INFO

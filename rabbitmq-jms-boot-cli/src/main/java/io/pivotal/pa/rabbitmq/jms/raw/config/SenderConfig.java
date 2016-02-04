@@ -1,55 +1,98 @@
 package io.pivotal.pa.rabbitmq.jms.raw.config;
 
+import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.rabbitmq.jms.admin.RMQDestination;
+
 import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
 import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageSenderTest;
 
-@Profile({ "send", "send-queue", "publish", "publish-topic" })
+@Profile({ "send", "publish" })
 @Configuration
 public class SenderConfig {
+	
+	private static Logger log = LoggerFactory.getLogger(SenderConfig.class);
 
 	@Bean
 	public JMSTest senderRunner() {
 		return new MessageSenderTest();
 	}
 
-	@Value("${queue:default.topic.name}")
+	@Value("${jms.queue:default.queue}")
 	private String queueName;
 
-	@Profile({ "send", "send-queue" })
+	@Value("${amqp.exchange}")
+	private String amqpExchangeName;
+
+	@Value("${amqp.queue}")
+	private String amqpQueueName;
+
+	@Value("${amqp.routing-key}")
+	private String amqpRoutingKey;
+
+	@Value("${jms.persistent:false}")
+	private boolean persistent;
+
+	@Profile("send")
 	@Bean
 	public MessageProducer queueMessageProducer(Session session) {
+		MessageProducer messageProducer = null;
 		try {
-			return session.createProducer(session.createQueue(queueName));
+			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+queueName+", rmqExchangeName="+amqpExchangeName);
+				messageProducer = session.createProducer((Queue)(new RMQDestination(queueName, amqpExchangeName, "", null)));
+			}
+			else {
+				log.info("Creating MessageProducer using JMS Queue obj for queueName="+queueName);
+				messageProducer = session.createProducer(session.createQueue(queueName));
+			}
+			if(!persistent) {
+				log.info("Setting delivery mode to NON_PERSISTENT");
+				messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			} else { log.info("Setting delivery mode to PERSISTENT"); }
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return messageProducer;
 	}
 
-	@Value("${topic:default.topic.name}")
+	@Value("${jms.topic:default.topic}")
 	private String topicName;
 
-	@Profile({"publish", "publish-topic"})
+	@Profile("publish")
 	@Bean
 	public MessageProducer topicMessageProducer(Session session) {
+		MessageProducer messageProducer = null;
 		try {
-			return session.createProducer(session.createTopic(topicName));
+			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+topicName+", rmqExchangeName="+amqpExchangeName);
+				messageProducer = session.createProducer((Topic)(new RMQDestination(topicName, amqpExchangeName, null, null)));
+			}
+			else {
+				log.info("Creating MessageProducer using JMS Queue obj for topicName="+topicName);
+				messageProducer = session.createProducer(session.createTopic(topicName));
+			}
+			if(!persistent) {
+				log.info("Setting delivery mode to NON_PERSISTENT");
+				messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			} else { log.info("Setting delivery mode to PERSISTENT"); }
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return messageProducer;
 	}
 	
 	@Bean
@@ -57,7 +100,6 @@ public class SenderConfig {
 		try {
 			return session.createTextMessage();
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

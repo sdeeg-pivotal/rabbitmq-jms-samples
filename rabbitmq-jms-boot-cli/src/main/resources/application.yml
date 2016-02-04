@@ -2,21 +2,27 @@ spring:
   profiles:
     active: usage
 
-jms:
+amqp:
+  uri: none
   host: localhost
   username: guest
   password: guest
   port: 5672
+  vhost: /
+  exchange:
+  queue:
+  routing-key: #not used
+jms:
   ack: AUTO_ACKNOWLEDGE
+  queue: test.queue
+  topic: test.topic
+  durable-queue: not-durable  #turn on durable subscriber
+  persitent: false
 
 delay: 0
 nummessages: 1
 message: default message
-queue: test.queue
-topic: test.topic
-durable: false  #turn on durable subscriber
-batchsize: -1 #send and publish
-
+batchsize: -1 #turn on transactions
 
 logging:
   level:

@@ -18,15 +18,23 @@ public class MessageConsumerTest implements JMSTest {
 	public void run() throws Exception {
 		if (connection != null) {
 
+			System.out.println("Starting connection (press 'p' to pause or 'x' to exit)");
 			connection.start();
 
-			//Wait for the x
+			//Grab the input and Exit, Pause, or Resume
 			int ch;
 			while ((ch = System.in.read()) != -1) {
-				if (ch != '\n' && ch != '\r') {
-					if (ch == 'x') {
-						break;
-					}
+				if (ch == 'x' || ch == 'X') {
+					System.out.println("Exiting");
+					break;
+				}
+				else if (ch == 'p' || ch == 'P') {
+					System.out.println("Pausing ... (press 'r' to resume)");
+					connection.stop();
+				}
+				else if (ch == 'r' || ch == 'R') {
+					System.out.println("Resuming (press 'p' to pause or 'x' to exit)");
+					connection.start();
 				}
 			}
 

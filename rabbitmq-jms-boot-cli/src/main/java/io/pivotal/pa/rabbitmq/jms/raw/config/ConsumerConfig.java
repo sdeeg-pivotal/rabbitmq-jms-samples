@@ -5,6 +5,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,19 +16,21 @@ import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
 import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageConsumerTest;
 import io.pivotal.pa.rabbitmq.jms.raw.tests.SimpleMessageListener;
 
-@Profile({"consume","consume-queue", "subscribe", "subscribe-topic"})
+@Profile({"consume", "subscribe"})
 @Configuration
 public class ConsumerConfig {
+	
+	private static Logger log = LoggerFactory.getLogger(ConsumerConfig.class);
 
 	@Bean
 	public JMSTest consumerRunner() {
 		return new MessageConsumerTest();
 	}
 	
-	@Value("${queue:default.topic.name}")
+	@Value("${jms.queue:default.queue}")
 	private String queueName;
 	
-	@Profile({"consume","consume-queue"})
+	@Profile("consume")
 	@Bean
 	public MessageConsumer messageConsumer(Session session) {
 		MessageConsumer messageConsumer = null;
@@ -34,7 +38,7 @@ public class ConsumerConfig {
 			Queue queue = session.createQueue(queueName);
 			messageConsumer = session.createConsumer(queue);
 
-			System.out.println("Registering listener for queue " + queueName + " (enter 'x' to exit)");
+			System.out.println("Registering listener for queue "+queueName);
 			messageConsumer.setMessageListener(new SimpleMessageListener());
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -42,25 +46,26 @@ public class ConsumerConfig {
 		return null;
 	}
 
-	@Value("${topic:default.topic.name}")
+	@Value("${jms.topic:default.topic}")
 	String topicName;
 	
-	@Value("${durable:false}")
-    boolean durable;
+	@Value("${jms.durable-queue:not-durable}")
+    String durableQueue;
 	
-	@Profile({"subscribe", "subscribe-topic"})
+	@Profile("subscribe")
 	@Bean
 	public MessageConsumer topicMessageConsumer(Session session) {
 		MessageConsumer messageConsumer = null;
 		try {
 			Topic topic = session.createTopic(topicName);
-			if(durable) {
-				messageConsumer = session.createDurableSubscriber(topic, "abc123");
+			if(!"not-durable".equals(durableQueue)) {
+				log.info("Creating durable queue for subscriber with name "+durableQueue);
+				messageConsumer = session.createDurableSubscriber(topic, durableQueue);
 			} else {
 				messageConsumer = session.createConsumer(topic);
 			}
 
-			System.out.println("Registering subscriber for topic " + topicName + " (enter 'x' to exit)");
+			System.out.println("Registering listener for topic " + topicName);
 			messageConsumer.setMessageListener(new SimpleMessageListener());
 		} catch(Exception e) {
 			e.printStackTrace();

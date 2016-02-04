@@ -31,7 +31,7 @@ public class JMSTestRunner implements CommandLineRunner {
 				}
 			}
 			else {
-				System.out.println("I want to run a single test, but I found "+tests.size());
+				System.out.println("I want to run multiple tests, but I can only do a single test now: found "+tests.size()+" tests.");
 			}
 		}
 
