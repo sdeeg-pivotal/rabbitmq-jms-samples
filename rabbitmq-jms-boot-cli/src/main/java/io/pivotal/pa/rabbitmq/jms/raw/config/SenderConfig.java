@@ -52,7 +52,7 @@ public class SenderConfig {
 		MessageProducer messageProducer = null;
 		try {
 			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
-				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+queueName+", rmqExchangeName="+amqpExchangeName);
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+queueName+", amqpExchangeName="+amqpExchangeName);
 				messageProducer = session.createProducer((Queue)(new RMQDestination(queueName, amqpExchangeName, "", null)));
 			}
 			else {
@@ -78,7 +78,7 @@ public class SenderConfig {
 		MessageProducer messageProducer = null;
 		try {
 			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
-				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+topicName+", rmqExchangeName="+amqpExchangeName);
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+topicName+", amqpExchangeName="+amqpExchangeName);
 				messageProducer = session.createProducer((Topic)(new RMQDestination(topicName, amqpExchangeName, null, null)));
 			}
 			else {

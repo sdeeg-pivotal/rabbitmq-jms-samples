@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.rabbitmq.jms.admin.RMQDestination;
+
 import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
 import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageConsumerTest;
 import io.pivotal.pa.rabbitmq.jms.raw.tests.SimpleMessageListener;
@@ -30,13 +32,21 @@ public class ConsumerConfig {
 	@Value("${jms.queue:default.queue}")
 	private String queueName;
 	
+	@Value("${amqp.queue}")
+	private String amqpQueueName;
+	
 	@Profile("consume")
 	@Bean
 	public MessageConsumer messageConsumer(Session session) {
 		MessageConsumer messageConsumer = null;
 		try {
-			Queue queue = session.createQueue(queueName);
-			messageConsumer = session.createConsumer(queue);
+			if(amqpQueueName != null && !"".equals(amqpQueueName)) {
+				log.info("rmqQueueName is set, using native RMQDestination to create MessageConsumer.  queueName="+queueName+", amqpQueueName="+amqpQueueName);
+				messageConsumer = session.createConsumer((Queue)(new RMQDestination(queueName, null, null, amqpQueueName)));
+			}
+			else {
+				messageConsumer = session.createConsumer(session.createQueue(queueName));
+			}
 
 			System.out.println("Registering listener for queue "+queueName);
 			messageConsumer.setMessageListener(new SimpleMessageListener());
@@ -57,11 +67,20 @@ public class ConsumerConfig {
 	public MessageConsumer topicMessageConsumer(Session session) {
 		MessageConsumer messageConsumer = null;
 		try {
-			Topic topic = session.createTopic(topicName);
+			Topic topic = null;
+			if(amqpQueueName != null && !"".equals(amqpQueueName)) {
+				log.info("rmqQueueName is set, using native RMQDestination to create Topic for MessageConsumer.  queueName="+queueName+", amqpQueueName="+amqpQueueName);
+				topic = (Topic)(new RMQDestination(topicName, null, null, amqpQueueName));
+			}
+			else {
+				topic = session.createTopic(topicName);
+			}
+			
 			if(!"not-durable".equals(durableQueue)) {
 				log.info("Creating durable queue for subscriber with name "+durableQueue);
 				messageConsumer = session.createDurableSubscriber(topic, durableQueue);
 			} else {
+				log.info("Creating transient queue for subscriber");
 				messageConsumer = session.createConsumer(topic);
 			}
 

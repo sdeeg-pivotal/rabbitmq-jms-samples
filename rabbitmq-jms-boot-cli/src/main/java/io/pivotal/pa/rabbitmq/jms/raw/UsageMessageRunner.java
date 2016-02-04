@@ -12,7 +12,7 @@ public class UsageMessageRunner implements CommandLineRunner {
 	@Override
 	public void run(String... arg0) throws Exception {
 		System.out.println("Parameters:");
-		System.out.println("--spring.profiles.active=[send | consume | publish | subscribe");
+		System.out.println("--spring.profiles.active=[send | consume | publish | subscribe]");
 		System.out.println("--amqp.uri=[<uri>] (overrides amqp.host, etc)");
 		System.out.println("--amqp.host=[localhost | <host>]");
 		System.out.println("--amqp.username=[guest | <username>]");
@@ -27,7 +27,7 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--jms.durable-queue=[<durable queue name>] (turns on use of durable subscriber)");
 		System.out.println("--jms.persistent=[false | <true|false>]");
 		System.out.println("--message=[default message | <message>]");
-		System.out.println("--delay=[0 | <delay>]");
+		System.out.println("--delay=[0 | <delay>] (in milliseconds)");
 		System.out.println("--nummessages=[1 | <nummessages>]");
 		System.out.println("--batchsize=[<batchsize>] (turns on transactionality for senders)");
 	}
