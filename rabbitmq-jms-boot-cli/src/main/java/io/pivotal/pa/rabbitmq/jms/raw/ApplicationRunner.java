@@ -35,7 +35,7 @@ public class ApplicationRunner implements CommandLineRunner {
 			}
 		}
 
-		System.out.println("Good bye.");
+		System.out.println("Goodbye.");
 		context.close();
 		System.exit(0);
 	}

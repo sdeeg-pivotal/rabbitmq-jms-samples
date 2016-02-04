@@ -14,17 +14,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile({ "send", "send-queue" })
+@Profile({ "send", "send-queue", "publish", "publish-topic" })
 @Component
-public class SendQueue implements JMSTest {
+public class MessageSenderRunner implements JMSTest {
 
-	private static Logger log = LoggerFactory.getLogger(SendQueue.class);
+	private static Logger log = LoggerFactory.getLogger(MessageSenderRunner.class);
 
 	@Autowired
 	private Session session;
-
-	@Value("${queue:default.queue.name}")
-	private String queueName;
+	
+	@Autowired
+	MessageProducer messageProducer;
+	
+	@Autowired
+	TextMessage textMessage;
 
 	@Value("${message:default}")
 	private String messageStr;
@@ -44,27 +47,25 @@ public class SendQueue implements JMSTest {
 		if (numMessages < batchSize) {
 			batchSize = numMessages;
 		}
+
 		if (session != null) {
-			Queue queue = session.createQueue(queueName);
-			TextMessage message = session.createTextMessage();
-			MessageProducer sender = session.createProducer(queue);
 			System.out.println("Sending " + numMessages + " messages with a delay of " + delay + " and payload \""
-					+ messageStr + "\" to queue " + queueName);
+					+ messageStr + "\" to " + messageProducer.getDestination());
 			if (batchSize > 0) {
 				System.out.println("Transactions are on.  Using a batch of " + batchSize);
 			}
 			try {
 				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
-					message.setText("[" + messageCounter + "] " + messageStr);
+					textMessage.setText("[" + messageCounter + "] " + messageStr);
 					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
-					sender.send(message);
+					messageProducer.send(textMessage);
 					if (batchSize > 0) {
 						if ((messageCounter + 1) % batchSize == 0) {
 							System.out.println(LocalTime.now()+"> Committing transaction");
 							session.commit();
 						}
 					}
-					Thread.sleep(delay);
+					if(delay > 0) { Thread.sleep(delay); }
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

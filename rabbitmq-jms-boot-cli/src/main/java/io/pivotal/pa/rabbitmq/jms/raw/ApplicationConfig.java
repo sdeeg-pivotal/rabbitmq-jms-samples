@@ -10,9 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQConnectionFactory;
 
+@Profile("!usage")
 @Configuration
 public class ApplicationConfig {
 	private static Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
