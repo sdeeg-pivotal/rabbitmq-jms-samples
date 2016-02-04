@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw;
+package io.pivotal.pa.rabbitmq.jms.raw.config;
 
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
@@ -10,13 +10,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
+import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageConsumerTest;
+import io.pivotal.pa.rabbitmq.jms.raw.tests.SimpleMessageListener;
+
 @Profile({"consume","consume-queue", "subscribe", "subscribe-topic"})
 @Configuration
 public class ConsumerConfig {
 
 	@Bean
-	public JMSTestRunner consumerRunner() {
-		return new MessageConsumerRunner();
+	public JMSTest consumerRunner() {
+		return new MessageConsumerTest();
 	}
 	
 	@Value("${queue:default.topic.name}")

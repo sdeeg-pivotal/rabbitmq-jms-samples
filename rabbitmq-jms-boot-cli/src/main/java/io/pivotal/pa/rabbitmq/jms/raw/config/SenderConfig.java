@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw;
+package io.pivotal.pa.rabbitmq.jms.raw.config;
 
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
@@ -10,13 +10,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
+import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageSenderTest;
+
 @Profile({ "send", "send-queue", "publish", "publish-topic" })
 @Configuration
 public class SenderConfig {
 
 	@Bean
-	public JMSTestRunner senderRunner() {
-		return new MessageSenderRunner();
+	public JMSTest senderRunner() {
+		return new MessageSenderTest();
 	}
 
 	@Value("${queue:default.topic.name}")

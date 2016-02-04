@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw;
+package io.pivotal.pa.rabbitmq.jms.raw.config;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;

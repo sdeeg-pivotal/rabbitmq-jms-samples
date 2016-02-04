@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw;
+package io.pivotal.pa.rabbitmq.jms.raw.tests;
 
 import java.util.List;
 
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 @Profile("!usage")
 @Component
-public class ApplicationRunner implements CommandLineRunner {
+public class JMSTestRunner implements CommandLineRunner {
 	
 	@Autowired
-	List<JMSTestRunner> tests;
+	List<JMSTest> tests;
 	
 	@Autowired
 	AbstractApplicationContext context;
@@ -26,7 +26,7 @@ public class ApplicationRunner implements CommandLineRunner {
 		if(tests != null) {
 			//TODO: make this work for multiple tests with a thread for each
 			if(tests.size() == 1) {
-				for(JMSTestRunner test : tests) {
+				for(JMSTest test : tests) {
 					test.run();
 				}
 			}
