@@ -10,10 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-//@Profile({"consume","consume-queue", "subscribe", "subscribe-topic"})
+@Profile({"consume","consume-queue", "subscribe", "subscribe-topic"})
 @Configuration
 public class ConsumerConfig {
 
+	@Bean
+	public JMSTestRunner consumerRunner() {
+		return new MessageConsumerRunner();
+	}
+	
 	@Value("${queue:default.topic.name}")
 	private String queueName;
 	

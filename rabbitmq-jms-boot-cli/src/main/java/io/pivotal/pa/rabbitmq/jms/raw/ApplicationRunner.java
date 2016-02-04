@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class ApplicationRunner implements CommandLineRunner {
 	
 	@Autowired
-	List<JMSTest> tests;
+	List<JMSTestRunner> tests;
 	
 	@Autowired
 	AbstractApplicationContext context;
@@ -26,7 +26,7 @@ public class ApplicationRunner implements CommandLineRunner {
 		if(tests != null) {
 			//TODO: make this work for multiple tests with a thread for each
 			if(tests.size() == 1) {
-				for(JMSTest test : tests) {
+				for(JMSTestRunner test : tests) {
 					test.run();
 				}
 			}

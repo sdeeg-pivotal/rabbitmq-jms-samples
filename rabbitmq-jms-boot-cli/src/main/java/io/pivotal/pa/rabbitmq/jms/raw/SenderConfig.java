@@ -10,9 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-//@Profile({ "send", "send-queue", "publish", "publish-topic" })
+@Profile({ "send", "send-queue", "publish", "publish-topic" })
 @Configuration
 public class SenderConfig {
+
+	@Bean
+	public JMSTestRunner senderRunner() {
+		return new MessageSenderRunner();
+	}
 
 	@Value("${queue:default.topic.name}")
 	private String queueName;

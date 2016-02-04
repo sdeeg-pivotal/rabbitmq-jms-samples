@@ -3,7 +3,6 @@ package io.pivotal.pa.rabbitmq.jms.raw;
 import java.time.LocalTime;
 
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -11,12 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
-@Profile({ "send", "send-queue", "publish", "publish-topic" })
-@Component
-public class MessageSenderRunner implements JMSTest {
+//This bean is created in the SenderConfig class if appropriate profiles are set.
+public class MessageSenderRunner implements JMSTestRunner {
 
 	private static Logger log = LoggerFactory.getLogger(MessageSenderRunner.class);
 

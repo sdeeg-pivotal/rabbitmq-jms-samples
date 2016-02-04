@@ -5,12 +5,9 @@ import javax.jms.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
-@Profile({"consume","consume-queue", "subscribe", "subscribe-topic"})
-@Component
-public class MessageConsumerRunner implements JMSTest {
+//This bean is created by the ConsumerConfig class if an appropriate profile is set.
+public class MessageConsumerRunner implements JMSTestRunner {
 
 	private static Logger log = LoggerFactory.getLogger(MessageConsumerRunner.class);
 
