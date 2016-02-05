@@ -2,9 +2,7 @@
 
 This is a Spring Boot application that makes use of the JMS API as exposed by the RabbitMQ JMSClient.
 
-##Usage:
-
-###Running
+##Running
 
 The client is a Java application.  It is "self-executing", meaning you can run it with the java -jar command.
 
@@ -15,7 +13,7 @@ java -jar target/rabbitmq-jms-boot-cli-0.0.1-SNAPSHOT.jar
 
 (The sample parameter sets assume this as the command)
 
-###Parameters
+##Parameters
 
 When run with no parameters it prints its usage message.
 
@@ -35,6 +33,7 @@ Parameters:
 --jms.topic=[test.topic | <topic>]
 --jms.durable-queue=[<durable queue name>] (turns on use of durable subscriber)
 --jms.persistent=[false | <true|false>]
+--jms.priority=[<0-9>]
 --message=[default message | <message>]
 --delay=[0 | <delay>] (in milliseconds)
 --nummessages=[1 | <nummessages>]
@@ -49,6 +48,10 @@ Simple send/receive:
 #Sender
 --spring.profiles.active=send --amqp.uri=amqp://user:pass@server-name:5672 --jms.queue=my.queue --nummessages=10
 ```
+
+##Connecting to existing queues/exchanges
+
+When connecting to existing queues and exchanges the JMS primative may have a configuration mismatch that results in an exception.  In this case use --amqp.queue/exchange instead of --jms.queue/topic.
 
 ##Using Consistent Hash Exchanges
 
@@ -67,4 +70,13 @@ Queues should be declared and bound in the usual way.  Make sure to use a numeri
 
 ##Transactions
 
-Set the param --batchsize to a number greater than 0 and transactions will be turned on for senders.  Consumers currently don't support this.
+Set the param --batchsize=n to a number greater than 0 and transactions will be turned on for senders.  After every n messages a commite will be issued.  Consumers currently don't support this.
+
+##Priority queues
+
+To use JMS priorities you have to send to a RabbitMQ priority queue.  This means the queue was created with the attribute x-max-priority=0-9.  Users can then set the priority of the messages sent.
+
+```
+--spring.profiles.active=send --nummessages=2 --message="priority 9" --jms.priority=9 --amqp.exchange=an.exchange
+```
+

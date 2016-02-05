@@ -39,6 +39,9 @@ public class MessageSenderTest implements JMSTest {
 	@Value("${batchsize:0}")
 	private int batchSize;
 
+	@Value("${jms.priority:-1}")
+	private int jmsPriority;
+	
 	public void run() throws Exception {
 		int messageCounter = 0;
 
@@ -52,10 +55,17 @@ public class MessageSenderTest implements JMSTest {
 			if (batchSize > 0) {
 				System.out.println("Transactions are on.  Using a batch of " + batchSize);
 			}
+			if(jmsPriority>9) {
+				log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
+				jmsPriority = 9;
+			}
 			try {
 				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
 					textMessage.setText("[" + messageCounter + "] " + messageStr);
 					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
+					if(jmsPriority >= 0) {
+						messageProducer.setPriority(jmsPriority);
+					}
 					messageProducer.send(textMessage);
 					if (batchSize > 0) {
 						if ((messageCounter + 1) % batchSize == 0) {

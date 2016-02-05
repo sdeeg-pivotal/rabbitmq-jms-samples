@@ -18,6 +18,7 @@ jms:
   topic: test.topic
   durable-queue: not-durable  #turn on durable subscriber
   persitent: false
+  priority: -1 #no priority set by default
 
 delay: 0
 nummessages: 1
