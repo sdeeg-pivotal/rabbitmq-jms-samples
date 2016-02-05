@@ -3,7 +3,7 @@ spring:
     active: usage
 
 amqp:
-  uri: none
+  uri:
   host: localhost
   username: guest
   password: guest

@@ -49,6 +49,8 @@ public class JMSCommonConfig {
 				connectionFactory.setHost(host);
 				connectionFactory.setUsername(username);
 				connectionFactory.setPassword(password);
+				connectionFactory.setPort(port);
+				connectionFactory.setVirtualHost(vHost);
 			}
 			System.out.println("Creating connection with URI: "+connectionFactory.getUri());
 		} catch (JMSException e) {

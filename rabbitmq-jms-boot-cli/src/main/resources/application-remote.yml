@@ -4,4 +4,4 @@ logging:
   level:
     io:
       pivotal:
-        pa: INFO
+#        pa: INFO
