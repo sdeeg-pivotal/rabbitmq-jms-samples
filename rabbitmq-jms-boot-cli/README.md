@@ -2,6 +2,8 @@
 
 This is a Spring Boot application that makes use of the JMS API as exposed by the RabbitMQ JMSClient.
 
+Note:  This app has a dependency on a version of the RabbitMQ JMSClient >=1.4.7, which as of this writing (20160204) is the current SNAPSHOT version in the private RabbitMQ repository.
+
 ##Running
 
 The client is a Java application.  It is "self-executing", meaning you can run it with the java -jar command.
