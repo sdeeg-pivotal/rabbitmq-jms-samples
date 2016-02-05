@@ -74,7 +74,7 @@ Set the param --batchsize=n to a number greater than 0 and transactions will be 
 
 ##Priority queues
 
-To use JMS priorities you have to send to a RabbitMQ priority queue.  This means the queue was created with the attribute x-max-priority=0-9.  Users can then set the priority of the messages sent.
+To use JMS priorities you have to send to a RabbitMQ priority queue.  This means the queue was created with the attribute x-max-priority=9 (JMS asumes 0-9 priorities).  Users can then set the priority of the messages sent.
 
 ```
 --spring.profiles.active=send --nummessages=2 --message="priority 9" --jms.priority=9 --amqp.exchange=an.exchange
