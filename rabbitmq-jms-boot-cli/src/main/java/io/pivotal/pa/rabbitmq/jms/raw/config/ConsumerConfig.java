@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
@@ -37,7 +38,7 @@ public class ConsumerConfig {
 	
 	@Profile("consume")
 	@Bean
-	public MessageConsumer messageConsumer(Session session) {
+	public MessageConsumer messageConsumer(Session session, SimpleMessageListener simpleMessageListener) {
 		MessageConsumer messageConsumer = null;
 		try {
 			if(amqpQueueName != null && !"".equals(amqpQueueName)) {
@@ -49,7 +50,7 @@ public class ConsumerConfig {
 			}
 
 			System.out.println("Registering listener for queue "+queueName);
-			messageConsumer.setMessageListener(new SimpleMessageListener());
+			messageConsumer.setMessageListener(simpleMessageListener);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -64,7 +65,7 @@ public class ConsumerConfig {
 	
 	@Profile("subscribe")
 	@Bean
-	public MessageConsumer topicMessageConsumer(Session session) {
+	public MessageConsumer topicMessageConsumer(Session session, SimpleMessageListener simpleMessageListener) {
 		MessageConsumer messageConsumer = null;
 		try {
 			Topic topic = null;
@@ -85,11 +86,17 @@ public class ConsumerConfig {
 			}
 
 			System.out.println("Registering listener for topic " + topicName);
-			messageConsumer.setMessageListener(new SimpleMessageListener());
+			messageConsumer.setMessageListener(simpleMessageListener);
 		} catch(Exception e) {
 			e.printStackTrace();
 			messageConsumer = null;
 		}
 		return messageConsumer;
+	}
+
+	@Bean
+	@Lazy
+	public SimpleMessageListener simpleMessageListener() {
+		return new SimpleMessageListener();
 	}
 }

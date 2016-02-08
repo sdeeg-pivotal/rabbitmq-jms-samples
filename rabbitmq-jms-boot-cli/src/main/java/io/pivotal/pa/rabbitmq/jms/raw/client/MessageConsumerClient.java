@@ -21,6 +21,7 @@ public class MessageConsumerClient implements JMSClientWorker {
 			System.out.println("Starting connection (press 'p' to pause or 'x' to exit)");
 			connection.start();
 
+			//TODO: move this logic to the JMSClientRunner
 			//Grab the input and Exit, Pause, or Resume
 			int ch;
 			while ((ch = System.in.read()) != -1) {

@@ -27,6 +27,7 @@ public class JMSClientRunner implements CommandLineRunner {
 
 		if(workers != null) {
 			//TODO: make this work for multiple workers with a thread for each
+			//TODO: move CLI logic here
 			if(workers.size() == 1) {
 				for(JMSClientWorker worker: workers) {
 					worker.start();

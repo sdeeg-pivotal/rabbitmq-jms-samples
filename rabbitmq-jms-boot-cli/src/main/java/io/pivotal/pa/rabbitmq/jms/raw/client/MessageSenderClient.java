@@ -41,6 +41,9 @@ public class MessageSenderClient implements JMSClientWorker {
 
 	@Value("${jms.priority:-1}")
 	private int jmsPriority;
+
+	@Value("${jms.reply-to}")
+	private String jmsReplyTo;
 	
 	public void start() throws Exception {
 		int messageCounter = 0;
@@ -58,15 +61,25 @@ public class MessageSenderClient implements JMSClientWorker {
 			if(jmsPriority>9) {
 				log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
 				jmsPriority = 9;
+			} else if(jmsPriority > -1) {
+				log.info("using a JMS priority of "+jmsPriority);
+			}
+			if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
+				log.info("Setting jmsReplyTo="+jmsReplyTo);
 			}
 			try {
 				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
 					textMessage.setText("[" + messageCounter + "] " + messageStr);
-					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
 					if(jmsPriority >= 0) {
 						messageProducer.setPriority(jmsPriority);
 					}
+					if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
+						textMessage.setJMSReplyTo(session.createQueue(jmsReplyTo));
+					}
+
+					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
 					messageProducer.send(textMessage);
+
 					if (batchSize > 0) {
 						if ((messageCounter + 1) % batchSize == 0) {
 							System.out.println(LocalTime.now()+"> Committing transaction");
