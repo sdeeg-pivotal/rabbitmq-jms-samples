@@ -6,14 +6,14 @@ Note:  This app has a dependency on a version of the RabbitMQ JMSClient >=1.4.7,
 
 ##Running
 
-The client is a Java application.  It is "self-executing", meaning you can run it with the java -jar command.
+The client is a Java application.  It is self executing, meaning you can run it with the java -jar command.
 
 eg:
 ```
 java -jar target/rabbitmq-jms-boot-cli-0.0.1-SNAPSHOT.jar
 ```
 
-(The sample parameter sets assume this as the command)
+(The sample parameter sets below are passed to this command)
 
 ##Parameters
 
@@ -72,11 +72,11 @@ Queues should be declared and bound in the usual way.  Make sure to use a numeri
 
 ##Transactions
 
-Set the param --batchsize=n to a number greater than 0 and transactions will be turned on for senders.  After every n messages a commite will be issued.  Consumers currently don't support this.
+Set the param --batchsize=n to a number greater than 0 and transactions will be turned on for senders.  After every n messages a commit is issued.  (Consumers currently don't support this.)
 
 ##Priority queues
 
-To use JMS priorities you have to send to a RabbitMQ priority queue.  This means the queue was created with the attribute x-max-priority=9 (JMS asumes 0-9 priorities).  Users can then set the priority of the messages sent.
+JMS priorities are utilized by RabbitMQ priority queues to control delivery.  This means the RabbitMQ queue was created with the attribute x-max-priority=9 (JMS assumes 0-9 priorities).  Users can then set the priority of the messages sent.
 
 ```
 --spring.profiles.active=send --nummessages=2 --message="priority 9" --jms.priority=9 --amqp.exchange=an.exchange

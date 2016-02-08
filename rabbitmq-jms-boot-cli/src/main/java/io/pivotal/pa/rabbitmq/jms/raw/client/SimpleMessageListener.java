@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw.tests;
+package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import java.time.LocalTime;
 import java.util.Date;

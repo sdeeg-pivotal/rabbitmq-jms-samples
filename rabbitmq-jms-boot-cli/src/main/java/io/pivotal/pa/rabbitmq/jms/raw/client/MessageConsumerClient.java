@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw.tests;
+package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import javax.jms.Connection;
 
@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //This bean is created by the ConsumerConfig class if an appropriate profile is set.
-public class MessageConsumerTest implements JMSTest {
+public class MessageConsumerClient implements JMSClientApp {
 
-	private static Logger log = LoggerFactory.getLogger(MessageConsumerTest.class);
+	private static Logger log = LoggerFactory.getLogger(MessageConsumerClient.class);
 
 	@Autowired
 	private Connection connection;

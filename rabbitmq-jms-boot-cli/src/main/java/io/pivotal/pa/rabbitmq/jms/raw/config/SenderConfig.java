@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
 
-import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
-import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageSenderTest;
+import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientApp;
+import io.pivotal.pa.rabbitmq.jms.raw.client.MessageSenderClient;
 
 @Profile({ "send", "publish" })
 @Configuration
@@ -27,8 +27,8 @@ public class SenderConfig {
 	private static Logger log = LoggerFactory.getLogger(SenderConfig.class);
 
 	@Bean
-	public JMSTest senderRunner() {
-		return new MessageSenderTest();
+	public JMSClientApp senderRunner() {
+		return new MessageSenderClient();
 	}
 
 	@Value("${jms.queue:default.queue}")

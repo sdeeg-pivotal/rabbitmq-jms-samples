@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
 
-import io.pivotal.pa.rabbitmq.jms.raw.tests.JMSTest;
-import io.pivotal.pa.rabbitmq.jms.raw.tests.MessageConsumerTest;
-import io.pivotal.pa.rabbitmq.jms.raw.tests.SimpleMessageListener;
+import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientApp;
+import io.pivotal.pa.rabbitmq.jms.raw.client.MessageConsumerClient;
+import io.pivotal.pa.rabbitmq.jms.raw.client.SimpleMessageListener;
 
 @Profile({"consume", "subscribe"})
 @Configuration
@@ -25,8 +25,8 @@ public class ConsumerConfig {
 	private static Logger log = LoggerFactory.getLogger(ConsumerConfig.class);
 
 	@Bean
-	public JMSTest consumerRunner() {
-		return new MessageConsumerTest();
+	public JMSClientApp consumerRunner() {
+		return new MessageConsumerClient();
 	}
 	
 	@Value("${jms.queue:default.queue}")

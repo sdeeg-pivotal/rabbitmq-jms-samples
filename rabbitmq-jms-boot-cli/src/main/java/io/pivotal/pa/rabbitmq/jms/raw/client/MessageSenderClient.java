@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw.tests;
+package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import java.time.LocalTime;
 
@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.rabbitmq.jms.admin.RMQDestination;
 
 //This bean is created in the SenderConfig class if appropriate profiles are set.
-public class MessageSenderTest implements JMSTest {
+public class MessageSenderClient implements JMSClientApp {
 
-	private static Logger log = LoggerFactory.getLogger(MessageSenderTest.class);
+	private static Logger log = LoggerFactory.getLogger(MessageSenderClient.class);
 
 	@Autowired
 	private Session session;
