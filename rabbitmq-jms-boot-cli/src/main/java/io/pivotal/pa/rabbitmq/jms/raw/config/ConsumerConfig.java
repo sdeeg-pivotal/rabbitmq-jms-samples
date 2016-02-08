@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
 
-import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientApp;
+import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientWorker;
 import io.pivotal.pa.rabbitmq.jms.raw.client.MessageConsumerClient;
 import io.pivotal.pa.rabbitmq.jms.raw.client.SimpleMessageListener;
 
@@ -25,7 +25,7 @@ public class ConsumerConfig {
 	private static Logger log = LoggerFactory.getLogger(ConsumerConfig.class);
 
 	@Bean
-	public JMSClientApp consumerRunner() {
+	public JMSClientWorker consumerRunner() {
 		return new MessageConsumerClient();
 	}
 	

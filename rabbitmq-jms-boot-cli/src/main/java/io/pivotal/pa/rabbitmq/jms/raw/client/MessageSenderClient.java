@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.rabbitmq.jms.admin.RMQDestination;
 
 //This bean is created in the SenderConfig class if appropriate profiles are set.
-public class MessageSenderClient implements JMSClientApp {
+public class MessageSenderClient implements JMSClientWorker {
 
 	private static Logger log = LoggerFactory.getLogger(MessageSenderClient.class);
 
@@ -42,7 +42,7 @@ public class MessageSenderClient implements JMSClientApp {
 	@Value("${jms.priority:-1}")
 	private int jmsPriority;
 	
-	public void run() throws Exception {
+	public void start() throws Exception {
 		int messageCounter = 0;
 
 		if (numMessages < batchSize) {
@@ -81,6 +81,12 @@ public class MessageSenderClient implements JMSClientApp {
 		} else {
 			log.error("Session is null");
 		}
+	}
+
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

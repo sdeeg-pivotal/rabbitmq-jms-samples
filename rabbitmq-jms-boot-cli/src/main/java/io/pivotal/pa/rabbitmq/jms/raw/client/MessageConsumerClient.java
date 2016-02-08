@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //This bean is created by the ConsumerConfig class if an appropriate profile is set.
-public class MessageConsumerClient implements JMSClientApp {
+public class MessageConsumerClient implements JMSClientWorker {
 
 	private static Logger log = LoggerFactory.getLogger(MessageConsumerClient.class);
 
@@ -15,7 +15,7 @@ public class MessageConsumerClient implements JMSClientApp {
 	private Connection connection;
 
 	@Override
-	public void run() throws Exception {
+	public void start() throws Exception {
 		if (connection != null) {
 
 			System.out.println("Starting connection (press 'p' to pause or 'x' to exit)");
@@ -42,5 +42,11 @@ public class MessageConsumerClient implements JMSClientApp {
 		} else {
 			log.error("connectionFactory is null");
 		}
+	}
+
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }

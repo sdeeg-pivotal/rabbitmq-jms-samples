@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
 
-import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientApp;
+import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientWorker;
 import io.pivotal.pa.rabbitmq.jms.raw.client.MessageSenderClient;
 
 @Profile({ "send", "publish" })
@@ -27,7 +27,7 @@ public class SenderConfig {
 	private static Logger log = LoggerFactory.getLogger(SenderConfig.class);
 
 	@Bean
-	public JMSClientApp senderRunner() {
+	public JMSClientWorker senderRunner() {
 		return new MessageSenderClient();
 	}
 
