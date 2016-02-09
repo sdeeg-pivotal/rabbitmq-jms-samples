@@ -1,7 +1,9 @@
+#Use the profile to control the role of the application: [send|consume]
 spring:
   profiles:
     active: usage #If this is set then show the usage message.
 
+#Properties specific to RabbitMQ/AMQP
 amqp:
   uri:
   host: localhost
@@ -12,6 +14,8 @@ amqp:
   exchange:
   queue:
   routing-key: #not used
+
+#JMS specific properties
 jms:
   ack: AUTO_ACKNOWLEDGE
   queue: test.queue
@@ -21,16 +25,15 @@ jms:
   priority: -1 #no priority set by default
   reply-to:
 
-delay: 0
+#Properties to control the behavior of the client
+delay: 0 #milliseconds between message sends
 nummessages: 1
 message: default message
+message-size: -1 #not used
 batchsize: -1 #turn on transactions
+reject-poison: false
+poison-message: ~~Poison~~
 
 logging:
   level:
     root: ERROR
-    org:
-      springframework: WARN
-#    com:
-#      rabbitmq: 
-#        jms: TRACE

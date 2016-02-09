@@ -2,6 +2,11 @@ amqp:
   uri: amqp://admin:admin@headless1/%2F
 logging:
   level:
+    org:
+      springframework: WARN
+#    com:
+#      rabbitmq: 
+#        jms: TRACE
     io:
       pivotal:
         pa: INFO
