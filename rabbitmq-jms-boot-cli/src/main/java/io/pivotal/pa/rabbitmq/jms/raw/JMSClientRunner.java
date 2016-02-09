@@ -9,7 +9,9 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientWorker;
+import io.pivotal.pa.rabbitmq.jms.raw.client.MessageConsumerClient;
 
+//Start the worker(s), capture the input, control the worker(s).
 @Profile("!usage")
 @Component
 public class JMSClientRunner implements CommandLineRunner {
@@ -20,17 +22,36 @@ public class JMSClientRunner implements CommandLineRunner {
 	@Autowired
 	AbstractApplicationContext context;
 	
+	//TODO: make this work for multiple workers with a thread for each
 	@Override
 	public void run(String... arg0) throws Exception {
 
 		System.out.println("Hello from the JMS Runner");
 
 		if(workers != null) {
-			//TODO: make this work for multiple workers with a thread for each
-			//TODO: move CLI logic here
 			if(workers.size() == 1) {
 				for(JMSClientWorker worker: workers) {
+					worker.initialize();
 					worker.start();
+
+					if(worker instanceof MessageConsumerClient) {
+						//Grab the input and Exit, Pause, or Resume
+						int ch;
+						while ((ch = System.in.read()) != -1) {
+							if (ch == 'x' || ch == 'X') {
+								System.out.println("Exiting");
+								break;
+							}
+							else if (ch == 'p' || ch == 'P') {
+								System.out.println("Pausing ... (press 'r' to resume)");
+								worker.stop();
+							}
+							else if (ch == 'r' || ch == 'R') {
+								System.out.println("Resuming (press 'p' to pause or 'x' to exit)");
+								worker.start();
+							}
+						}
+					}
 				}
 			}
 			else {

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQDestination;
@@ -26,8 +25,13 @@ public class ConsumerConfig {
 	private static Logger log = LoggerFactory.getLogger(ConsumerConfig.class);
 
 	@Bean
-	public JMSClientWorker consumerRunner() {
+	public JMSClientWorker messageConsumerClient() {
 		return new MessageConsumerClient();
+	}
+
+	@Bean
+	public SimpleMessageListener simpleMessageListener() {
+		return new SimpleMessageListener();
 	}
 	
 	@Value("${jms.queue:default.queue}")
@@ -49,7 +53,7 @@ public class ConsumerConfig {
 				messageConsumer = session.createConsumer(session.createQueue(queueName));
 			}
 
-			System.out.println("Registering listener for queue "+queueName);
+			log.info("Registering listener for queue "+queueName);
 			messageConsumer.setMessageListener(simpleMessageListener);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -92,11 +96,5 @@ public class ConsumerConfig {
 			messageConsumer = null;
 		}
 		return messageConsumer;
-	}
-
-	@Bean
-	@Lazy
-	public SimpleMessageListener simpleMessageListener() {
-		return new SimpleMessageListener();
 	}
 }

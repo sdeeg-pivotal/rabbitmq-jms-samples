@@ -45,31 +45,40 @@ public class MessageSenderClient implements JMSClientWorker {
 	@Value("${jms.reply-to}")
 	private String jmsReplyTo;
 	
-	public void start() throws Exception {
-		int messageCounter = 0;
+	int messageCounter = 0;
 
+	@Override
+	public void initialize() throws Exception {
 		if (numMessages < batchSize) {
 			batchSize = numMessages;
 		}
+		if (batchSize > 0) {
+			System.out.println("Transactions are on.  Using a batch of " + batchSize);
+		}
+		if(jmsPriority>9) {
+			log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
+			jmsPriority = 9;
+		} else if(jmsPriority > -1) {
+			log.info("using a JMS priority of "+jmsPriority);
+		}
+		if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
+			log.info("Setting jmsReplyTo="+jmsReplyTo);
+		}
+	}
+
+	//TODO: make this method reentrant
+	public void start() throws Exception {
 
 		if (session != null) {
 			System.out.println("Sending " + numMessages + " messages with a delay of " + delay + " and payload \""
 					+ messageStr + "\" to destination " + ((RMQDestination)messageProducer.getDestination()).getDestinationName());
-			if (batchSize > 0) {
-				System.out.println("Transactions are on.  Using a batch of " + batchSize);
-			}
-			if(jmsPriority>9) {
-				log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
-				jmsPriority = 9;
-			} else if(jmsPriority > -1) {
-				log.info("using a JMS priority of "+jmsPriority);
-			}
-			if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
-				log.info("Setting jmsReplyTo="+jmsReplyTo);
-			}
 			try {
 				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
+					
+					//Set the message text
 					textMessage.setText("[" + messageCounter + "] " + messageStr);
+					
+					//Set a few optional features based on parameters
 					if(jmsPriority >= 0) {
 						messageProducer.setPriority(jmsPriority);
 					}
@@ -86,6 +95,7 @@ public class MessageSenderClient implements JMSClientWorker {
 							session.commit();
 						}
 					}
+					
 					if(delay > 0) { Thread.sleep(delay); }
 				}
 			} catch (Exception e) {

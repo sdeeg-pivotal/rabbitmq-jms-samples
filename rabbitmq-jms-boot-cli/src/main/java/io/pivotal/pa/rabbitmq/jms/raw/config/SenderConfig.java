@@ -27,7 +27,7 @@ public class SenderConfig {
 	private static Logger log = LoggerFactory.getLogger(SenderConfig.class);
 
 	@Bean
-	public JMSClientWorker senderRunner() {
+	public JMSClientWorker messageSenderClient() {
 		return new MessageSenderClient();
 	}
 
@@ -37,8 +37,8 @@ public class SenderConfig {
 	@Value("${amqp.exchange}")
 	private String amqpExchangeName;
 
-	@Value("${amqp.queue}")
-	private String amqpQueueName;
+//	@Value("${amqp.queue}")
+//	private String amqpQueueName;
 
 	@Value("${amqp.routing-key}")
 	private String amqpRoutingKey;
@@ -53,7 +53,7 @@ public class SenderConfig {
 		try {
 			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
 				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+queueName+", amqpExchangeName="+amqpExchangeName);
-				messageProducer = session.createProducer((Queue)(new RMQDestination(queueName, amqpExchangeName, "", null)));
+				messageProducer = session.createProducer((Queue)(new RMQDestination(amqpExchangeName, amqpExchangeName, "", null)));
 			}
 			else {
 				log.info("Creating MessageProducer using JMS Queue obj for queueName="+queueName);
@@ -79,7 +79,7 @@ public class SenderConfig {
 		try {
 			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
 				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+topicName+", amqpExchangeName="+amqpExchangeName);
-				messageProducer = session.createProducer((Topic)(new RMQDestination(topicName, amqpExchangeName, null, null)));
+				messageProducer = session.createProducer((Topic)(new RMQDestination(amqpExchangeName, amqpExchangeName, null, null)));
 			}
 			else {
 				log.info("Creating MessageProducer using JMS Queue obj for topicName="+topicName);

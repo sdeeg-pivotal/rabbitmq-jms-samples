@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: usage
+    active: usage #If this is set then show the usage message.
 
 amqp:
   uri:

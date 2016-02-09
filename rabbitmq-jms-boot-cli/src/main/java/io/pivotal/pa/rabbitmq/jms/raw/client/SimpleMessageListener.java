@@ -43,7 +43,6 @@ public class SimpleMessageListener implements MessageListener {
 			e.printStackTrace();
 		}
 		
-
 		System.out.println(jmsType+"::"+LocalTime.now()+"> "+payload);
 	}
 	

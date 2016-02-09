@@ -15,39 +15,24 @@ public class MessageConsumerClient implements JMSClientWorker {
 	private Connection connection;
 
 	@Override
+	public void initialize() throws Exception {
+	}
+
+	@Override
 	public void start() throws Exception {
 		if (connection != null) {
-
-			System.out.println("Starting connection (press 'p' to pause or 'x' to exit)");
 			connection.start();
-
-			//TODO: move this logic to the JMSClientRunner
-			//Grab the input and Exit, Pause, or Resume
-			int ch;
-			while ((ch = System.in.read()) != -1) {
-				if (ch == 'x' || ch == 'X') {
-					System.out.println("Exiting");
-					break;
-				}
-				else if (ch == 'p' || ch == 'P') {
-					System.out.println("Pausing ... (press 'r' to resume)");
-					connection.stop();
-				}
-				else if (ch == 'r' || ch == 'R') {
-					System.out.println("Resuming (press 'p' to pause or 'x' to exit)");
-					connection.start();
-				}
-			}
-
-			connection.stop();
 		} else {
-			log.error("connectionFactory is null");
+			log.error("Worker being started, but connection is null");
 		}
 	}
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-		
+		if (connection != null) {
+			connection.stop();
+		} else {
+			log.error("Worker being stopped, but connection is null");
+		}
 	}
 }

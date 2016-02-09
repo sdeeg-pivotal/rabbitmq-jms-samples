@@ -36,6 +36,7 @@ Parameters:
 --jms.durable-queue=[<durable queue name>] (turns on use of durable subscriber)
 --jms.persistent=[false | <true|false>]
 --jms.priority=[<0-9>]
+--jms.reply-to=<reply-to-queue>
 --message=[default message | <message>]
 --delay=[0 | <delay>] (in milliseconds)
 --nummessages=[1 | <nummessages>]
@@ -82,3 +83,34 @@ JMS priorities are utilized by RabbitMQ priority queues to control delivery.  Th
 --spring.profiles.active=send --nummessages=2 --message="priority 9" --jms.priority=9 --amqp.exchange=an.exchange
 ```
 
+##Reply To queues
+
+The client will set the JMS ReplyTo queue when it's passed the --jms.reply-to flag.
+
+```
+--spring.profiles.active=send --nummessages=2 --message="priority 9" --jms.reply-to=my.reply.queue
+```
+
+Consuming clients look for a JMSReplyTo queue in the message, and if they find one will echo the message payload to it setting the JMSCorrelationID to the messages ID.
+
+#Passing parameters in a file
+
+While you can pass all properties as parameters to the app, Spring allows the use of property files that can be loaded with a profile.  You can set any property in the file (see application.yml in the app for the comprehensive list of properties), and this is an easy way to use the client with a remote broker.  Create a file called application-remote.yml and then pass "remote" as part of the active profile set.  To get more information from the client use features in Spring that allows you to easily enable logging for certain modules.
+
+application-remote.yml
+```
+amqp:
+  uri: amqp://user:password@my-server/%2F
+logging:
+  level:
+    io:
+      pivotal:
+        pa: INFO
+jms:
+  queue: a.queue
+```
+
+running it
+```
+java -jar target/rabbitmq-jms-boot-cli-0.0.1-SNAPSHOT.jar --spring.profiles.active=sender,remote
+```
