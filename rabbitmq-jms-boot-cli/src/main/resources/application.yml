@@ -30,7 +30,7 @@ delay: 0 #milliseconds between message sends
 nummessages: 1
 message: default message
 message-size: -1 #not used
-batchsize: -1 #turn on transactions
+batchsize: -1 #turns on transactions
 reject-poison: false
 poison-message: ~~Poison~~
 
