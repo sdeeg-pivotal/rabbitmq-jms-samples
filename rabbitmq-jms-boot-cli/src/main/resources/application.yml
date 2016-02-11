@@ -31,8 +31,10 @@ nummessages: 1
 message: default message
 message-size: -1 #not used
 batchsize: -1 #turns on transactions
-reject-poison: false
-poison-message: ~~Poison~~
+poison:
+  enabled: false
+  send-percent: 5 #percent of messages sent that are poison
+  message: ~~Poison~~
 
 logging:
   level:

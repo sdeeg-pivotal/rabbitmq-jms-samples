@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -15,6 +16,7 @@ import javax.jms.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 public class SimpleMessageListener implements MessageListener {
 
@@ -23,27 +25,43 @@ public class SimpleMessageListener implements MessageListener {
 	@Autowired
 	private Session session;
 	
+	@Value("${poison.enabled:false}")
+	private boolean poison;
+	
+	@Value("${poison.message}")
+	private String poisonMessage;
+	
 	private Map<Destination, MessageProducer> messageProducers = new HashMap<>();
 	
 	@Override
 	public void onMessage(Message message) {
 		String payload = null;
-		String jmsType = null;
 
-		//Get the message body
+		//Get the payload
 		try {
 			if (message instanceof TextMessage) {
 				payload = ((TextMessage) message).getText();
-			} else {
+			} 
+			else if(message instanceof BytesMessage) {
+				BytesMessage bMessage = (BytesMessage) message;
+				int payloadLength = (int)bMessage.getBodyLength();
+				byte payloadBytes[] = new byte[payloadLength];
+				bMessage.readBytes(payloadBytes);
+				payload = new String(payloadBytes);
+			}
+			else {
+				log.warn("Message not recognized as a TextMessage or BytesMessage.  It is of type: "+message.getClass().toString());
 				payload = message.toString();
 			}
-			jmsType = message.getJMSType();
+			
+			if(payload.equals(poisonMessage)) {}
+			
 			replyToMessage(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
 		
-		System.out.println(jmsType+"::"+LocalTime.now()+"> "+payload);
+		System.out.println(LocalTime.now()+"> "+payload);
 	}
 	
 	//Look for the replyTo field, if it's there echo the message
@@ -57,7 +75,7 @@ public class SimpleMessageListener implements MessageListener {
 					producer = session.createProducer(replyTo);
 					messageProducers.put(replyTo, producer);
 				}
-                Message requestMessage = session.createTextMessage("Responder service");
+                Message requestMessage = session.createTextMessage(reply);
                 requestMessage.setJMSCorrelationID(id);
                 producer.send(requestMessage);
 			}
