@@ -24,6 +24,7 @@ jms:
   persitent: false
   priority: -1 #no priority set by default
   reply-to:
+  ttl: -1
 
 #Properties to control the behavior of the client
 delay: 0 #milliseconds between message sends

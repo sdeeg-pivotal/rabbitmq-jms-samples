@@ -36,7 +36,8 @@ Parameters:
 --jms.durable-queue=[<durable queue name>] (turns on use of durable subscriber)
 --jms.persistent=[false | <true|false>]
 --jms.priority=[<0-9>]
---jms.reply-to=<reply-to-queue>
+--jms.reply-to=[<reply-to-queue>]
+--jms.ttl=[<time-to-live>]
 --message=[default message | <message>]
 --delay=[0 | <delay>] (in milliseconds)
 --nummessages=[1 | <nummessages>]

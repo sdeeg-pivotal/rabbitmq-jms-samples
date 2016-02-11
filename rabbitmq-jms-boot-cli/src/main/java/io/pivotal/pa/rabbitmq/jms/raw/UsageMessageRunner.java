@@ -28,6 +28,7 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--jms.persistent=[false | <true|false>]");
 		System.out.println("--jms.priority=[<0-9>]");
 		System.out.println("--jms.reply-to=[<reply-to-queue>]");
+		System.out.println("--jms.ttl=[<time-to-live>]");
 		System.out.println("--message=[default message | <message>]");
 		System.out.println("--delay=[0 | <delay>] (in milliseconds)");
 		System.out.println("--nummessages=[1 | <nummessages>]");

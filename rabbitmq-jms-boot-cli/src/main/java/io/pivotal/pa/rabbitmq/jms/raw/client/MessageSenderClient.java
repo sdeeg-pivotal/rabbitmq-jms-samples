@@ -45,6 +45,9 @@ public class MessageSenderClient implements JMSClientWorker {
 	@Value("${jms.reply-to}")
 	private String jmsReplyTo;
 	
+	@Value("${jms.ttl:-1}")
+	private long ttl;
+	
 	int messageCounter = 0;
 
 	@Override
@@ -53,20 +56,24 @@ public class MessageSenderClient implements JMSClientWorker {
 			batchSize = numMessages;
 		}
 		if (batchSize > 0) {
-			System.out.println("Transactions are on.  Using a batch of " + batchSize);
+			log.info("Using a batch size of " + batchSize + ", turning transactions on.");
 		}
 		if(jmsPriority>9) {
 			log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
 			jmsPriority = 9;
 		} else if(jmsPriority > -1) {
-			log.info("using a JMS priority of "+jmsPriority);
+			log.info("Using JMS priority of "+jmsPriority);
 		}
 		if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
-			log.info("Setting jmsReplyTo="+jmsReplyTo);
+			log.info("Using jmsReplyTo="+jmsReplyTo);
+		}
+		if(ttl>0) {
+			log.info("Setting time to live in the MessageProducer to "+ttl);
+		    messageProducer.setTimeToLive(ttl);
 		}
 	}
 
-	//TODO: make this method reentrant
+	//TODO: make sure this method is reentrant
 	public void start() throws Exception {
 
 		if (session != null) {
