@@ -25,8 +25,11 @@ public class SimpleMessageListener implements MessageListener {
 	@Autowired
 	private Session session;
 	
+	@Autowired
+	private MessageConsumerClient messageConsumerClient;
+	
 	@Value("${poison.enabled:false}")
-	private boolean poison;
+	private boolean poisonEnabled;
 	
 	@Value("${poison.message}")
 	private String poisonMessage;
@@ -54,9 +57,14 @@ public class SimpleMessageListener implements MessageListener {
 				payload = message.toString();
 			}
 			
-			if(payload.equals(poisonMessage)) {}
+			if(poisonEnabled && payload.endsWith(poisonMessage)) {
+				handlePoison(message);
+			}
+			else {
+				replyToMessage(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
+				message.acknowledge();
+			}			
 			
-			replyToMessage(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -64,9 +72,19 @@ public class SimpleMessageListener implements MessageListener {
 		System.out.println(LocalTime.now()+"> "+payload);
 	}
 	
+	private void handlePoison(Message message) {
+		log.info("Received a poison message.  Stopping and restarting the consumer.");
+		try {
+//			messageConsumerClient.stop();
+//			messageConsumerClient.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	//Look for the replyTo field, if it's there echo the message
-	private void replyToMessage(Destination replyTo, String id, String reply) {
-		//TODO: optimize this by not creating the producer each time.
+	private void replyToMessage(Destination replyTo, String id, String payload) {
 		try {
 			if(replyTo != null) {
 				MessageProducer producer = messageProducers.get(replyTo);
@@ -75,9 +93,10 @@ public class SimpleMessageListener implements MessageListener {
 					producer = session.createProducer(replyTo);
 					messageProducers.put(replyTo, producer);
 				}
-                Message requestMessage = session.createTextMessage(reply);
+                Message requestMessage = session.createTextMessage(payload);
                 requestMessage.setJMSCorrelationID(id);
                 producer.send(requestMessage);
+                producer.close();
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();

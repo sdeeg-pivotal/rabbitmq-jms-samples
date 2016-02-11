@@ -14,6 +14,7 @@ amqp:
   exchange:
   queue:
   routing-key: #not used
+  ssl: false
 
 #JMS specific properties
 jms:
@@ -36,6 +37,7 @@ poison:
   enabled: false
   send-percent: 5 #percent of messages sent that are poison
   message: ~~Poison~~
+  retry: 0
 
 logging:
   level:

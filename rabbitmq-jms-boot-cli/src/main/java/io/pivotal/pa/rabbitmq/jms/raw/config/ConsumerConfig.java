@@ -97,4 +97,9 @@ public class ConsumerConfig {
 		}
 		return messageConsumer;
 	}
+
+	
+//	@Value("${poison.enabled:false}")
+//	private boolean poisonEnabled;
+//	public MessageProducer 
 }

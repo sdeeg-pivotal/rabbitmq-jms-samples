@@ -38,6 +38,9 @@ public class JMSCommonConfig {
 	@Value("${amqp.vhost:/}")
 	private String vHost;
 	
+	@Value("${amqp.ssl}")
+	private boolean amqpSSL;
+	
 	@Bean
 	public ConnectionFactory connectionFactory() {
 		RMQConnectionFactory connectionFactory = new RMQConnectionFactory();
@@ -51,6 +54,7 @@ public class JMSCommonConfig {
 				connectionFactory.setPassword(password);
 				connectionFactory.setPort(port);
 				connectionFactory.setVirtualHost(vHost);
+				connectionFactory.setSsl(amqpSSL);
 			}
 			System.out.println("Creating connection with URI: "+connectionFactory.getUri());
 		} catch (JMSException e) {
@@ -77,6 +81,9 @@ public class JMSCommonConfig {
 	@Value("${batchsize:0}")
 	private int batchSize;
 	
+//	@Value("${poison.enabled:false}")
+//	private boolean poisonEnabled;
+	
 	@Bean
 	public Session jmsSession(Connection connection) {
 		Session session = null;
@@ -86,9 +93,13 @@ public class JMSCommonConfig {
 		if(batchSize>0) {
 			log.info("batchSize is "+batchSize+", turning transactions on.");
 			transacted = true;
-			ackMode = Session.SESSION_TRANSACTED;
+			ackModeStr = "SESSION_TRANSACTED";
 		}
-		else if("AUTO_ACKNOWLEDGE".equals(ackModeStr) || "1".equals(ackModeStr)) { ackMode = Session.AUTO_ACKNOWLEDGE; ackModeStr = "AUTO_ACKNOWLEDGE"; }
+//		else if(poisonEnabled) {
+//			log.info("Poison messages enabled, setting mode to CLIENT_ACKNOWLEDGE");
+//			ackModeStr = "CLIENT_ACKNOWLEDGE";
+//		}
+		if("AUTO_ACKNOWLEDGE".equals(ackModeStr) || "1".equals(ackModeStr)) { ackMode = Session.AUTO_ACKNOWLEDGE; ackModeStr = "AUTO_ACKNOWLEDGE"; }
 		else if("CLIENT_ACKNOWLEDGE".equals(ackModeStr) || "2".equals(ackModeStr)) { ackMode = Session.CLIENT_ACKNOWLEDGE; ackModeStr = "CLIENT_ACKNOWLEDGE"; }
 		else if("DUPS_OK_ACKNOWLEDGE".equals(ackModeStr) || "3".equals(ackModeStr)) { ackMode = Session.DUPS_OK_ACKNOWLEDGE; ackModeStr = "DUPS_OK_ACKNOWLEDGE"; }
 		else if("SESSION_TRANSACTED".equals(ackModeStr) || "0".equals(ackModeStr)) {
