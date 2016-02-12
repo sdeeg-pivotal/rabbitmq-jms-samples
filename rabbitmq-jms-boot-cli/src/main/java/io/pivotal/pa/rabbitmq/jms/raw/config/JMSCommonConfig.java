@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.jms.admin.RMQConnectionFactory;
 
+import io.pivotal.pa.rabbitmq.jms.raw.properties.AMQPProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.JMSProperties;
+
 @Profile("!usage")
 @Configuration
 public class JMSCommonConfig {

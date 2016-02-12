@@ -18,6 +18,9 @@ import com.rabbitmq.jms.admin.RMQDestination;
 import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientWorker;
 import io.pivotal.pa.rabbitmq.jms.raw.client.MessageConsumerClient;
 import io.pivotal.pa.rabbitmq.jms.raw.client.SimpleMessageListener;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.AMQPProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.AppProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.JMSProperties;
 
 @Profile({"consume", "subscribe"})
 @Configuration

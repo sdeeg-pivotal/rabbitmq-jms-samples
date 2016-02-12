@@ -1,4 +1,4 @@
-package io.pivotal.pa.rabbitmq.jms.raw.config;
+package io.pivotal.pa.rabbitmq.jms.raw.properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

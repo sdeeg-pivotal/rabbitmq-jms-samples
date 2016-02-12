@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.rabbitmq.jms.admin.RMQDestination;
 
-import io.pivotal.pa.rabbitmq.jms.raw.config.AppProperties;
-import io.pivotal.pa.rabbitmq.jms.raw.config.JMSProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.AppProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.JMSProperties;
 
 //This bean is created in the SenderConfig class if appropriate profiles are set.
 public class MessageSenderClient implements JMSClientWorker {

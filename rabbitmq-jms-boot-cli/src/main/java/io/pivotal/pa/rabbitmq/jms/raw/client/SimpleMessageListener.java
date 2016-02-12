@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import io.pivotal.pa.rabbitmq.jms.raw.config.AppProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.properties.AppProperties;
 
 public class SimpleMessageListener implements MessageListener {
 
@@ -94,7 +94,7 @@ public class SimpleMessageListener implements MessageListener {
 				reQueueProducer.send(message);
 			}
 			else {
-				log.info("Sending to backout queue");
+				log.info("Try limit is "+appProperties.poisonTryLimit+" and messageTryCount is "+messageTryCount+", sending to backout queue");
 				backoutQueueProducer.send(message);
 			}
 		} catch (Exception e) {
