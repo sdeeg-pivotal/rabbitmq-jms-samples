@@ -28,9 +28,6 @@ public class MessageSenderClient implements JMSClientWorker {
 	MessageProducer messageProducer;
 	
 	@Autowired
-	TextMessage textMessage;
-	
-	@Autowired
 	private AppProperties appProperties;
 	
 	@Autowired
@@ -62,16 +59,12 @@ public class MessageSenderClient implements JMSClientWorker {
 			log.info("Setting time to live in the MessageProducer to "+jmsProperties.ttl);
 		    messageProducer.setTimeToLive(jmsProperties.ttl);
 		}
-		if(appProperties.poisonEnabled) {
-			if(appProperties.sendPercent < 0) {
-				log.warn("sendPercent="+appProperties.sendPercent+" which is below 0.  Setting to 0.");
-				appProperties.sendPercent = 0;
+		if(appProperties.sendPoisonPercent>0) {
+			if(appProperties.sendPoisonPercent > 100) {
+				log.warn("sendPercent="+appProperties.sendPoisonPercent+" which is higher than 100.  Setting to 100.");
+				appProperties.sendPoisonPercent = 100;
 			}
-			if(appProperties.sendPercent > 100) {
-				log.warn("sendPercent="+appProperties.sendPercent+" which is higher than 100.  Setting to 100.");
-				appProperties.sendPercent = 100;
-			}
-			log.info("Poison messages enabled.  Sending message \""+appProperties.poisonMessage+"\" "+appProperties.sendPercent+"% of the time.");
+			log.info("Sending poison messages enabled.  Poison=\""+appProperties.poisonMessage+"\" sendPercent="+appProperties.sendPoisonPercent+"%");
 		}
 	}
 
@@ -82,12 +75,14 @@ public class MessageSenderClient implements JMSClientWorker {
 			System.out.println("Sending " + appProperties.numMessages + " messages with a delay of " + appProperties.delay + " and payload \""
 					+ appProperties.messageStr + "\" to destination " + ((RMQDestination)messageProducer.getDestination()).getDestinationName());
 			try {
+				TextMessage textMessage = session.createTextMessage();
 				for (messageCounter = 0; messageCounter < appProperties.numMessages; messageCounter++) {
 					
 					//Set the message text
 					String messageText = appProperties.messageStr;
-					if(appProperties.poisonEnabled) {
-						if(appProperties.sendPercent>randy.nextInt(100)) {
+					//Randomly poison
+					if(appProperties.sendPoisonPercent>0) {
+						if(appProperties.sendPoisonPercent>randy.nextInt(100)) {
 							messageText = appProperties.poisonMessage;
 						}
 					}
@@ -102,7 +97,9 @@ public class MessageSenderClient implements JMSClientWorker {
 						textMessage.setJMSReplyTo(session.createQueue(jmsProperties.jmsReplyTo));
 					}
 
-					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
+					if(appProperties.showCounter) {
+						System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
+					}
 					messageProducer.send(textMessage);
 
 					if (appProperties.batchSize > 0) {

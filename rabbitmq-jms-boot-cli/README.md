@@ -43,10 +43,9 @@ Parameters:
 --nummessages=[1 | <nummessages>]
 --batchsize=[<batchsize>] (turns on transactionality for senders)
 --counter=[true | <true|false> ] (turns on/off display of counter in consumer and prepending of counter in senders)
---poison.enabled=[false | <true|false>]
---poison.send-percent=[5 | <0-100>]
+--poison.send-percent=[0 | <0-100>] (>0 turns on)
 --poison.message=[default | <message>]
---poison.try-limit=[1 | <n>]
+--poison.try-limit=[0 | <n>] (>0 turns on poison monitoring)
 --poison.backout-queue=[backout.queue | <backout-queue>]
 ```
 

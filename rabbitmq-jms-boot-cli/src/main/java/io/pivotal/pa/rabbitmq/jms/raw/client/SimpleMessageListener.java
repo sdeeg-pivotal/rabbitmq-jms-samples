@@ -60,7 +60,9 @@ public class SimpleMessageListener implements MessageListener {
 				payload = message.toString();
 			}
 			
-			if(appProperties.poisonEnabled && payload.endsWith(appProperties.poisonMessage)) {
+			//poisonTryLimit is our flag to look for poison.
+			if(appProperties.poisonTryLimit > 0 && payload.endsWith(appProperties.poisonMessage)) {
+				log.info("Received a poison message.");
 				handlePoison(message);
 			}
 			else {
@@ -78,7 +80,6 @@ public class SimpleMessageListener implements MessageListener {
 	}
 	
 	private void handlePoison(Message message) {
-		log.info("Received a poison message.");
 		try {
 			int messageTryCount = 0;
 			if(message.propertyExists("MessageTryCount")) {
@@ -86,8 +87,9 @@ public class SimpleMessageListener implements MessageListener {
 				messageTryCount = Integer.parseInt(messageTryCountStr);
 			}
 			messageTryCount++;
-			if(messageTryCount < appProperties.tryLimit) {
-				log.info("Try limit is "+appProperties.tryLimit+" and messageTryCount is "+messageTryCount+", requeueing.");
+			if(messageTryCount < appProperties.poisonTryLimit) {
+				log.info("Try limit is "+appProperties.poisonTryLimit+" and messageTryCount is "+messageTryCount+", requeueing.");
+				message.clearProperties();
 				message.setStringProperty("MessageTryCount", ""+messageTryCount);
 				reQueueProducer.send(message);
 			}

@@ -35,10 +35,9 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--nummessages=[1 | <nummessages>]");
 		System.out.println("--batchsize=[<batchsize>] (turns on transactionality for senders)");
 		System.out.println("--counter=[true | <true|false> ] (turns on/off display of counter in consumer and prepending of counter in senders)");
-		System.out.println("--poison.enabled=[false | <true|false>]");
-		System.out.println("--poison.send-percent=[5 | <0-100>]");
+		System.out.println("--poison.send-percent=[0 | <0-100>] (>0 turns it on)");
 		System.out.println("--poison.message=[default | <message>]");
-		System.out.println("--poison.try-limit=[1 | <n>]");
+		System.out.println("--poison.try-limit=[0 | <n>] (>0 turns monitoring for poison on)");
 		System.out.println("--poison.backout-queue=[backout.queue | <backout-queue>]");
 	}
 	

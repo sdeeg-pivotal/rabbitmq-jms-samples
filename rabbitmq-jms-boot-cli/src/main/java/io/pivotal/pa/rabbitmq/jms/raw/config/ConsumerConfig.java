@@ -97,8 +97,8 @@ public class ConsumerConfig {
 	public MessageProducer backoutQueueProducer(Session session, AppProperties appProperties) {
 		MessageProducer messageProducer = null;
 		try {
-			if(appProperties.poisonEnabled) {
-				messageProducer = session.createProducer(session.createQueue(appProperties.backoutQueue));
+			if(appProperties.poisonTryLimit>0) {
+				messageProducer = session.createProducer(session.createQueue(appProperties.poisonBackoutQueue));
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -120,7 +120,7 @@ public class ConsumerConfig {
 		}
 
 		try {
-			if(appProperties.poisonEnabled) {
+			if(appProperties.poisonTryLimit>0) {
 				messageProducer = session.createProducer(session.createQueue(destName));
 			}
 		} catch (JMSException e) {

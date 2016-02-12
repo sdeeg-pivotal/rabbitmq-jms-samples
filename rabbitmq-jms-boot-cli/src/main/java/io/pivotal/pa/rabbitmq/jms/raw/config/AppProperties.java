@@ -21,21 +21,18 @@ public class AppProperties {
 	
 	@Value("${batchsize}")
 	public long batchSize;
-
-	@Value("${poison.enabled:false}")
-	public boolean poisonEnabled;
 	
 	@Value("${poison.send-percent}")
-	public int sendPercent;
+	public int sendPoisonPercent;
 	
 	@Value("${poison.message}")
 	public String poisonMessage;
 	
 	@Value("${poison.try-limit}")
-	public int tryLimit;
+	public int poisonTryLimit;
 	
 	@Value("${poison.backout-queue}")
-	public String backoutQueue;
+	public String poisonBackoutQueue;
 
 	@Value("${counter}")
 	public boolean showCounter;

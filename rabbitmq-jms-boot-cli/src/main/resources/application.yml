@@ -34,10 +34,9 @@ message: default message
 message-size: -1 #not used
 batchsize: -1 #turns on transactions
 poison:
-  enabled: false
-  send-percent: 5 #percent of messages sent that are poison
+  send-percent: 0 #percent of messages sent that are poison
   message: ~~Poison~~
-  try-limit: 1
+  try-limit: 0
   backout-queue: backout.queue
 counter: true #senders prepend [c] to a message, cousumers show c in their output
 

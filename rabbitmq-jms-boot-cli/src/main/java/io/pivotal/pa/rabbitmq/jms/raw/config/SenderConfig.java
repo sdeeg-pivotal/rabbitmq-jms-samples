@@ -5,7 +5,6 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.slf4j.Logger;
@@ -75,14 +74,5 @@ public class SenderConfig {
 		}
 		return messageProducer;
 	}
-	
-	@Bean
-	public TextMessage message(Session session) {
-		try {
-			return session.createTextMessage();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 }
