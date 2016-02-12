@@ -1,25 +1,43 @@
 package io.pivotal.pa.rabbitmq.jms.raw.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+//Class to hold all the application properties.  Create once, inject everywhere.
+@Component
 public class AppProperties {
 
-	@Value("${amqp.uri:default}")
-	private String amqpUri;
+	@Value("${delay}")
+	public long delay;
 
-	@Value("${amqp.host:localhost}")
-	private String host;
+	@Value("${nummessages}")
+	public long numMessages;
 	
-	@Value("${amqp.username:default}")
-	private String username;
+	@Value("${message}")
+	public String messageStr;
 	
-	@Value("${amqp.password:default}")
-	private String password;
+	@Value("${message-size}")
+	public long messageSize;
 	
-	@Value("${amqp.port:5672}")
-	private int port;
+	@Value("${batchsize}")
+	public long batchSize;
+
+	@Value("${poison.enabled:false}")
+	public boolean poisonEnabled;
 	
-	@Value("${amqp.vhost:/}")
-	private String vHost;
+	@Value("${poison.send-percent}")
+	public int sendPercent;
+	
+	@Value("${poison.message}")
+	public String poisonMessage;
+	
+	@Value("${poison.try-limit}")
+	public int tryLimit;
+	
+	@Value("${poison.backout-queue}")
+	public String backoutQueue;
+
+	@Value("${counter}")
+	public boolean showCounter;
 
 }

@@ -16,7 +16,8 @@ import javax.jms.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
+import io.pivotal.pa.rabbitmq.jms.raw.config.AppProperties;
 
 public class SimpleMessageListener implements MessageListener {
 
@@ -26,15 +27,17 @@ public class SimpleMessageListener implements MessageListener {
 	private Session session;
 	
 	@Autowired
-	private MessageConsumerClient messageConsumerClient;
+	private AppProperties appProperties;
 	
-	@Value("${poison.enabled:false}")
-	private boolean poisonEnabled;
+	@Autowired(required=false)
+	private MessageProducer backoutQueueProducer;
 	
-	@Value("${poison.message}")
-	private String poisonMessage;
+	@Autowired(required=false)
+	private MessageProducer reQueueProducer;
 	
 	private Map<Destination, MessageProducer> messageProducers = new HashMap<>();
+	
+	private long messageCounter = 0;
 	
 	@Override
 	public void onMessage(Message message) {
@@ -57,28 +60,42 @@ public class SimpleMessageListener implements MessageListener {
 				payload = message.toString();
 			}
 			
-			if(poisonEnabled && payload.endsWith(poisonMessage)) {
+			if(appProperties.poisonEnabled && payload.endsWith(appProperties.poisonMessage)) {
 				handlePoison(message);
 			}
 			else {
 				replyToMessage(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
-				message.acknowledge();
 			}			
 			
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println(LocalTime.now()+"> "+payload);
+
+		String outputText = LocalTime.now().toString();
+		if(appProperties.showCounter) { outputText += "["+messageCounter+"]"; }
+		outputText += "> "+payload;
+		System.out.println(outputText);
 	}
 	
 	private void handlePoison(Message message) {
-		log.info("Received a poison message.  Stopping and restarting the consumer.");
+		log.info("Received a poison message.");
 		try {
-//			messageConsumerClient.stop();
-//			messageConsumerClient.start();
+			int messageTryCount = 0;
+			if(message.propertyExists("MessageTryCount")) {
+				String messageTryCountStr = message.getStringProperty("MessageTryCount");
+				messageTryCount = Integer.parseInt(messageTryCountStr);
+			}
+			messageTryCount++;
+			if(messageTryCount < appProperties.tryLimit) {
+				log.info("Try limit is "+appProperties.tryLimit+" and messageTryCount is "+messageTryCount+", requeueing.");
+				message.setStringProperty("MessageTryCount", ""+messageTryCount);
+				reQueueProducer.send(message);
+			}
+			else {
+				log.info("Sending to backout queue");
+				backoutQueueProducer.send(message);
+			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -96,7 +113,6 @@ public class SimpleMessageListener implements MessageListener {
                 Message requestMessage = session.createTextMessage(payload);
                 requestMessage.setJMSCorrelationID(id);
                 producer.send(requestMessage);
-                producer.close();
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();

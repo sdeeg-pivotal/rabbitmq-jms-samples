@@ -22,7 +22,7 @@ jms:
   queue: test.queue
   topic: test.topic
   durable-queue: not-durable  #turn on durable subscriber
-  persitent: false
+  persistent: false
   priority: -1 #no priority set by default
   reply-to:
   ttl: -1
@@ -37,7 +37,9 @@ poison:
   enabled: false
   send-percent: 5 #percent of messages sent that are poison
   message: ~~Poison~~
-  retry: 0
+  try-limit: 1
+  backout-queue: backout.queue
+counter: true #senders prepend [c] to a message, cousumers show c in their output
 
 logging:
   level:

@@ -1,6 +1,7 @@
 package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import java.time.LocalTime;
+import java.util.Random;
 
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -9,9 +10,11 @@ import javax.jms.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.rabbitmq.jms.admin.RMQDestination;
+
+import io.pivotal.pa.rabbitmq.jms.raw.config.AppProperties;
+import io.pivotal.pa.rabbitmq.jms.raw.config.JMSProperties;
 
 //This bean is created in the SenderConfig class if appropriate profiles are set.
 public class MessageSenderClient implements JMSClientWorker {
@@ -26,50 +29,49 @@ public class MessageSenderClient implements JMSClientWorker {
 	
 	@Autowired
 	TextMessage textMessage;
-
-	@Value("${message:default}")
-	private String messageStr;
-
-	@Value("${nummessages:0}")
-	private int numMessages;
-
-	@Value("${delay:100}")
-	private long delay;
-
-	@Value("${batchsize:0}")
-	private int batchSize;
-
-	@Value("${jms.priority:-1}")
-	private int jmsPriority;
-
-	@Value("${jms.reply-to}")
-	private String jmsReplyTo;
 	
-	@Value("${jms.ttl:-1}")
-	private long ttl;
+	@Autowired
+	private AppProperties appProperties;
+	
+	@Autowired
+	private JMSProperties jmsProperties;
+	
+	@Autowired
+	private Random randy;
 	
 	int messageCounter = 0;
 
 	@Override
 	public void initialize() throws Exception {
-		if (numMessages < batchSize) {
-			batchSize = numMessages;
+		if (appProperties.numMessages < appProperties.batchSize) {
+			appProperties.batchSize = appProperties.numMessages;
 		}
-		if (batchSize > 0) {
-			log.info("Using a batch size of " + batchSize + ", turning transactions on.");
+		if (appProperties.batchSize > 0) {
+			log.info("Using a batch size of " + appProperties.batchSize + ", turning transactions on.");
 		}
-		if(jmsPriority>9) {
+		if(jmsProperties.jmsPriority>9) {
 			log.warn("jmsPriority is set to a number greater than 9 which is not allow by the spec.  Setting to 9.");
-			jmsPriority = 9;
-		} else if(jmsPriority > -1) {
-			log.info("Using JMS priority of "+jmsPriority);
+			jmsProperties.jmsPriority = 9;
+		} else if(jmsProperties.jmsPriority > -1) {
+			log.info("Using JMS priority of "+jmsProperties.jmsPriority);
 		}
-		if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
-			log.info("Using jmsReplyTo="+jmsReplyTo);
+		if(jmsProperties.jmsReplyTo != null && !"".equals(jmsProperties.jmsReplyTo)) {
+			log.info("Using jmsReplyTo="+jmsProperties.jmsReplyTo);
 		}
-		if(ttl>0) {
-			log.info("Setting time to live in the MessageProducer to "+ttl);
-		    messageProducer.setTimeToLive(ttl);
+		if(jmsProperties.ttl>0) {
+			log.info("Setting time to live in the MessageProducer to "+jmsProperties.ttl);
+		    messageProducer.setTimeToLive(jmsProperties.ttl);
+		}
+		if(appProperties.poisonEnabled) {
+			if(appProperties.sendPercent < 0) {
+				log.warn("sendPercent="+appProperties.sendPercent+" which is below 0.  Setting to 0.");
+				appProperties.sendPercent = 0;
+			}
+			if(appProperties.sendPercent > 100) {
+				log.warn("sendPercent="+appProperties.sendPercent+" which is higher than 100.  Setting to 100.");
+				appProperties.sendPercent = 100;
+			}
+			log.info("Poison messages enabled.  Sending message \""+appProperties.poisonMessage+"\" "+appProperties.sendPercent+"% of the time.");
 		}
 	}
 
@@ -77,33 +79,40 @@ public class MessageSenderClient implements JMSClientWorker {
 	public void start() throws Exception {
 
 		if (session != null) {
-			System.out.println("Sending " + numMessages + " messages with a delay of " + delay + " and payload \""
-					+ messageStr + "\" to destination " + ((RMQDestination)messageProducer.getDestination()).getDestinationName());
+			System.out.println("Sending " + appProperties.numMessages + " messages with a delay of " + appProperties.delay + " and payload \""
+					+ appProperties.messageStr + "\" to destination " + ((RMQDestination)messageProducer.getDestination()).getDestinationName());
 			try {
-				for (messageCounter = 0; messageCounter < numMessages; messageCounter++) {
+				for (messageCounter = 0; messageCounter < appProperties.numMessages; messageCounter++) {
 					
 					//Set the message text
-					textMessage.setText("[" + messageCounter + "] " + messageStr);
+					String messageText = appProperties.messageStr;
+					if(appProperties.poisonEnabled) {
+						if(appProperties.sendPercent>randy.nextInt(100)) {
+							messageText = appProperties.poisonMessage;
+						}
+					}
+					if(appProperties.showCounter) { messageText = "[" + messageCounter + "]" + messageText; }
+					textMessage.setText(messageText);
 					
 					//Set a few optional features based on parameters
-					if(jmsPriority >= 0) {
-						messageProducer.setPriority(jmsPriority);
+					if(jmsProperties.jmsPriority >= 0) {
+						messageProducer.setPriority(jmsProperties.jmsPriority);
 					}
-					if(jmsReplyTo != null && !"".equals(jmsReplyTo)) {
-						textMessage.setJMSReplyTo(session.createQueue(jmsReplyTo));
+					if(jmsProperties.jmsReplyTo != null && !"".equals(jmsProperties.jmsReplyTo)) {
+						textMessage.setJMSReplyTo(session.createQueue(jmsProperties.jmsReplyTo));
 					}
 
 					System.out.println(LocalTime.now()+"> Sending message [" + messageCounter + "]");
 					messageProducer.send(textMessage);
 
-					if (batchSize > 0) {
-						if ((messageCounter + 1) % batchSize == 0) {
+					if (appProperties.batchSize > 0) {
+						if ((messageCounter + 1) % appProperties.batchSize == 0) {
 							System.out.println(LocalTime.now()+"> Committing transaction");
 							session.commit();
 						}
 					}
 					
-					if(delay > 0) { Thread.sleep(delay); }
+					if(appProperties.delay > 0) { Thread.sleep(appProperties.delay); }
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -115,8 +124,7 @@ public class MessageSenderClient implements JMSClientWorker {
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-		
+		log.warn("Stop on the message sender is currently not implemented.");
 	}
 
 }

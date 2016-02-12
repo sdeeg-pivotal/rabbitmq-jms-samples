@@ -42,6 +42,12 @@ Parameters:
 --delay=[0 | <delay>] (in milliseconds)
 --nummessages=[1 | <nummessages>]
 --batchsize=[<batchsize>] (turns on transactionality for senders)
+--counter=[true | <true|false> ] (turns on/off display of counter in consumer and prepending of counter in senders)
+--poison.enabled=[false | <true|false>]
+--poison.send-percent=[5 | <0-100>]
+--poison.message=[default | <message>]
+--poison.try-limit=[1 | <n>]
+--poison.backout-queue=[backout.queue | <backout-queue>]
 ```
 
 Simple send/receive:
@@ -93,6 +99,10 @@ The client will set the JMS ReplyTo queue when it's passed the --jms.reply-to fl
 ```
 
 Consuming clients look for a JMSReplyTo queue in the message, and if they find one will echo the message payload to it setting the JMSCorrelationID to the messages ID.
+
+##Poison messages
+
+Enable sending/detection of poison messages by passing the --poison.enable=true parameter.
 
 #Passing parameters in a file
 

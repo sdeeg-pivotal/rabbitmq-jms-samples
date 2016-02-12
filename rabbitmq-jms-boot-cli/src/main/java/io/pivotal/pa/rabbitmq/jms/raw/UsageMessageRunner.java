@@ -21,6 +21,7 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--amqp.vhost=[/ | <vhost>]");
 		System.out.println("--amqp.exchange=[<exchange>] (messages go to the specified exchange)");
 		System.out.println("--amqp.queue=[<queue>] (listeners attach to the specified queue)");
+		System.out.println("--amqp.ssl=[true | false]");
 		System.out.println("--jms.ack=[AUTO_ACKNOWLEDGE | CLIENT_ACKNOWLEDGE | DUPS_OK_ACKNOWLEDGE | SESSION_TRANSCTION]" );
 		System.out.println("--jms.queue=[test.queue | <queue>]");
 		System.out.println("--jms.topic=[test.topic | <topic>]");
@@ -33,6 +34,12 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--delay=[0 | <delay>] (in milliseconds)");
 		System.out.println("--nummessages=[1 | <nummessages>]");
 		System.out.println("--batchsize=[<batchsize>] (turns on transactionality for senders)");
+		System.out.println("--counter=[true | <true|false> ] (turns on/off display of counter in consumer and prepending of counter in senders)");
+		System.out.println("--poison.enabled=[false | <true|false>]");
+		System.out.println("--poison.send-percent=[5 | <0-100>]");
+		System.out.println("--poison.message=[default | <message>]");
+		System.out.println("--poison.try-limit=[1 | <n>]");
+		System.out.println("--poison.backout-queue=[backout.queue | <backout-queue>]");
 	}
-
+	
 }

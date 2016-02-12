@@ -10,7 +10,6 @@ import javax.jms.Topic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -31,35 +30,20 @@ public class SenderConfig {
 		return new MessageSenderClient();
 	}
 
-	@Value("${jms.queue:default.queue}")
-	private String queueName;
-
-	@Value("${amqp.exchange}")
-	private String amqpExchangeName;
-
-//	@Value("${amqp.queue}")
-//	private String amqpQueueName;
-
-	@Value("${amqp.routing-key}")
-	private String amqpRoutingKey;
-
-	@Value("${jms.persistent:false}")
-	private boolean persistent;
-
 	@Profile("send")
 	@Bean
-	public MessageProducer queueMessageProducer(Session session) {
+	public MessageProducer queueMessageProducer(Session session, AMQPProperties amqpProperties, JMSProperties jmsProperties) {
 		MessageProducer messageProducer = null;
 		try {
-			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
-				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+queueName+", amqpExchangeName="+amqpExchangeName);
-				messageProducer = session.createProducer((Queue)(new RMQDestination(amqpExchangeName, amqpExchangeName, "", null)));
+			if(amqpProperties.amqpExchangeName != null && !"".equals(amqpProperties.amqpExchangeName)) {
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+jmsProperties.queueName+", amqpExchangeName="+amqpProperties.amqpExchangeName);
+				messageProducer = session.createProducer((Queue)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, "", null)));
 			}
 			else {
-				log.info("Creating MessageProducer using JMS Queue obj for queueName="+queueName);
-				messageProducer = session.createProducer(session.createQueue(queueName));
+				log.info("Creating MessageProducer using JMS Queue obj for queueName="+jmsProperties.queueName);
+				messageProducer = session.createProducer(session.createQueue(jmsProperties.queueName));
 			}
-			if(!persistent) {
+			if(!jmsProperties.persistent) {
 				log.info("Setting delivery mode to NON_PERSISTENT");
 				messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			} else { log.info("Setting delivery mode to PERSISTENT"); }
@@ -69,23 +53,20 @@ public class SenderConfig {
 		return messageProducer;
 	}
 
-	@Value("${jms.topic:default.topic}")
-	private String topicName;
-
 	@Profile("publish")
 	@Bean
-	public MessageProducer topicMessageProducer(Session session) {
+	public MessageProducer topicMessageProducer(Session session, AMQPProperties amqpProperties, JMSProperties jmsProperties) {
 		MessageProducer messageProducer = null;
 		try {
-			if(amqpExchangeName != null && !"".equals(amqpExchangeName)) {
-				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+topicName+", amqpExchangeName="+amqpExchangeName);
-				messageProducer = session.createProducer((Topic)(new RMQDestination(amqpExchangeName, amqpExchangeName, null, null)));
+			if(amqpProperties.amqpExchangeName != null && !"".equals(amqpProperties.amqpExchangeName)) {
+				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+jmsProperties.topicName+", amqpExchangeName="+amqpProperties.amqpExchangeName);
+				messageProducer = session.createProducer((Topic)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, null, null)));
 			}
 			else {
-				log.info("Creating MessageProducer using JMS Queue obj for topicName="+topicName);
-				messageProducer = session.createProducer(session.createTopic(topicName));
+				log.info("Creating MessageProducer using JMS Queue obj for topicName="+jmsProperties.topicName);
+				messageProducer = session.createProducer(session.createTopic(jmsProperties.topicName));
 			}
-			if(!persistent) {
+			if(!jmsProperties.persistent) {
 				log.info("Setting delivery mode to NON_PERSISTENT");
 				messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			} else { log.info("Setting delivery mode to PERSISTENT"); }

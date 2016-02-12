@@ -1,13 +1,14 @@
 package io.pivotal.pa.rabbitmq.jms.raw.config;
 
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -33,63 +34,57 @@ public class ConsumerConfig {
 	public SimpleMessageListener simpleMessageListener() {
 		return new SimpleMessageListener();
 	}
-	
-	@Value("${jms.queue:default.queue}")
-	private String queueName;
-	
-	@Value("${amqp.queue}")
-	private String amqpQueueName;
-	
+		
 	@Profile("consume")
 	@Bean
-	public MessageConsumer messageConsumer(Session session, SimpleMessageListener simpleMessageListener) {
+	public MessageConsumer messageConsumer(Session session, 
+			                               SimpleMessageListener simpleMessageListener, 
+			                               AMQPProperties amqpProperties,
+			                               JMSProperties jmsProperties) {
 		MessageConsumer messageConsumer = null;
 		try {
-			if(amqpQueueName != null && !"".equals(amqpQueueName)) {
-				log.info("rmqQueueName is set, using native RMQDestination to create MessageConsumer.  queueName="+queueName+", amqpQueueName="+amqpQueueName);
-				messageConsumer = session.createConsumer((Queue)(new RMQDestination(queueName, null, null, amqpQueueName)));
+			if(amqpProperties.amqpQueueName != null && !"".equals(amqpProperties.amqpQueueName)) {
+				log.info("rmqQueueName is set, using native RMQDestination to create MessageConsumer.  queueName="+jmsProperties.queueName+", amqpQueueName="+amqpProperties.amqpQueueName);
+				messageConsumer = session.createConsumer((Queue)(new RMQDestination(jmsProperties.queueName, null, null, amqpProperties.amqpQueueName)));
 			}
 			else {
-				messageConsumer = session.createConsumer(session.createQueue(queueName));
+				messageConsumer = session.createConsumer(session.createQueue(jmsProperties.queueName));
 			}
 
-			log.info("Registering listener for queue "+queueName);
+			log.info("Registering listener for queue "+jmsProperties.queueName);
 			messageConsumer.setMessageListener(simpleMessageListener);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-
-	@Value("${jms.topic:default.topic}")
-	String topicName;
-	
-	@Value("${jms.durable-queue:not-durable}")
-    String durableQueue;
 	
 	@Profile("subscribe")
 	@Bean
-	public MessageConsumer topicMessageConsumer(Session session, SimpleMessageListener simpleMessageListener) {
+	public MessageConsumer topicMessageConsumer(Session session, 
+			                                    SimpleMessageListener simpleMessageListener, 
+			                                    AMQPProperties amqpProperties,
+			                                    JMSProperties jmsProperties) {
 		MessageConsumer messageConsumer = null;
 		try {
 			Topic topic = null;
-			if(amqpQueueName != null && !"".equals(amqpQueueName)) {
-				log.info("rmqQueueName is set, using native RMQDestination to create Topic for MessageConsumer.  queueName="+queueName+", amqpQueueName="+amqpQueueName);
-				topic = (Topic)(new RMQDestination(topicName, null, null, amqpQueueName));
+			if(amqpProperties.amqpQueueName != null && !"".equals(amqpProperties.amqpQueueName)) {
+				log.info("rmqQueueName is set, using native RMQDestination to create Topic for MessageConsumer.  queueName="+jmsProperties.queueName+", amqpQueueName="+amqpProperties.amqpQueueName);
+				topic = (Topic)(new RMQDestination(jmsProperties.topicName, null, null, amqpProperties.amqpQueueName));
 			}
 			else {
-				topic = session.createTopic(topicName);
+				topic = session.createTopic(jmsProperties.topicName);
 			}
 			
-			if(!"not-durable".equals(durableQueue)) {
-				log.info("Creating durable queue for subscriber with name "+durableQueue);
-				messageConsumer = session.createDurableSubscriber(topic, durableQueue);
+			if(!"not-durable".equals(jmsProperties.durableQueue)) {
+				log.info("Creating durable queue for subscriber with name "+jmsProperties.durableQueue);
+				messageConsumer = session.createDurableSubscriber(topic, jmsProperties.durableQueue);
 			} else {
 				log.info("Creating transient queue for subscriber");
 				messageConsumer = session.createConsumer(topic);
 			}
 
-			System.out.println("Registering listener for topic " + topicName);
+			System.out.println("Registering listener for topic " + jmsProperties.topicName);
 			messageConsumer.setMessageListener(simpleMessageListener);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -98,8 +93,39 @@ public class ConsumerConfig {
 		return messageConsumer;
 	}
 
+	@Bean
+	public MessageProducer backoutQueueProducer(Session session, AppProperties appProperties) {
+		MessageProducer messageProducer = null;
+		try {
+			if(appProperties.poisonEnabled) {
+				messageProducer = session.createProducer(session.createQueue(appProperties.backoutQueue));
+			}
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+		return messageProducer;
+	}
 	
-//	@Value("${poison.enabled:false}")
-//	private boolean poisonEnabled;
-//	public MessageProducer 
+	@Bean
+	public MessageProducer reQueueProducer(Session session,
+			                               AppProperties appProperties,
+			                               AMQPProperties amqpProperties,
+			                               JMSProperties jmsProperties) {
+
+		MessageProducer messageProducer = null;
+
+		String destName = amqpProperties.amqpExchangeName;		
+		if(destName == null) {
+			destName = jmsProperties.queueName;
+		}
+
+		try {
+			if(appProperties.poisonEnabled) {
+				messageProducer = session.createProducer(session.createQueue(destName));
+			}
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+		return messageProducer;
+	}
 }
