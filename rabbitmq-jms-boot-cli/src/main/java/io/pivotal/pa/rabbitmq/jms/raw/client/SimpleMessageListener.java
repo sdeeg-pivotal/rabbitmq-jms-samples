@@ -24,16 +24,13 @@ public class SimpleMessageListener implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(SimpleMessageListener.class);
 	
 	@Autowired
-	private Session session;
+	private Session jmsSession;
 	
 	@Autowired
 	private AppProperties appProperties;
 	
 	@Autowired(required=false)
 	private MessageProducer backoutQueueProducer;
-	
-	@Autowired(required=false)
-	private MessageProducer reQueueProducer;
 	
 	private Map<Destination, MessageProducer> messageProducers = new HashMap<>();
 	
@@ -59,6 +56,11 @@ public class SimpleMessageListener implements MessageListener {
 				log.warn("Message not recognized as a TextMessage or BytesMessage.  It is of type: "+message.getClass().toString());
 				payload = message.toString();
 			}
+
+			String outputText = LocalTime.now().toString();
+			if(appProperties.showCounter) { outputText += "["+(messageCounter++)+"]"; }
+			outputText += "> "+payload;
+			System.out.println(outputText);
 			
 			//poisonTryLimit is our flag to look for poison.
 			if(appProperties.poisonTryLimit > 0 && payload.endsWith(appProperties.poisonMessage)) {
@@ -66,35 +68,39 @@ public class SimpleMessageListener implements MessageListener {
 				handlePoison(message);
 			}
 			else {
-				replyToMessage(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
+				//TODO: add logic to take into account batch-size parameter
+				if(jmsSession.getTransacted()) { jmsSession.commit(); }
+				replyToMessageIfNecessary(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
 			}			
 			
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
-
-		String outputText = LocalTime.now().toString();
-		if(appProperties.showCounter) { outputText += "["+messageCounter+"]"; }
-		outputText += "> "+payload;
-		System.out.println(outputText);
 	}
 	
+
+	//TODO: hack, use this to count how many times we've tried a message.  This kills the infinite loop.
+	private HashMap<String,Integer> messageTryCounts = new HashMap<String,Integer>();
 	private void handlePoison(Message message) {
 		try {
-			int messageTryCount = 0;
-			if(message.propertyExists("MessageTryCount")) {
-				String messageTryCountStr = message.getStringProperty("MessageTryCount");
-				messageTryCount = Integer.parseInt(messageTryCountStr);
+			Integer messageTryCount = new Integer(0);
+//			if(message.propertyExists("MessageTryCount")) {
+//				String messageTryCountStr = message.getStringProperty("MessageTryCount");
+//				messageTryCount = Integer.parseInt(messageTryCountStr);
+//			}
+			if(messageTryCounts.containsKey(message.getJMSMessageID())) {
+				messageTryCount = messageTryCounts.get(message.getJMSMessageID());
 			}
 			messageTryCount++;
 			if(messageTryCount < appProperties.poisonTryLimit) {
 				log.info("Try limit is "+appProperties.poisonTryLimit+" and messageTryCount is "+messageTryCount+", requeueing.");
-				message.clearProperties();
-				message.setStringProperty("MessageTryCount", ""+messageTryCount);
-				reQueueProducer.send(message);
+				//Dump some info on the message that tells us how many tries there have been.
+				messageTryCounts.put(message.getJMSMessageID(), messageTryCount);
+				jmsSession.rollback();
 			}
 			else {
 				log.info("Try limit is "+appProperties.poisonTryLimit+" and messageTryCount is "+messageTryCount+", sending to backout queue");
+				jmsSession.commit();
 				backoutQueueProducer.send(message);
 			}
 		} catch (Exception e) {
@@ -103,16 +109,16 @@ public class SimpleMessageListener implements MessageListener {
 	}
 	
 	//Look for the replyTo field, if it's there echo the message
-	private void replyToMessage(Destination replyTo, String id, String payload) {
+	private void replyToMessageIfNecessary(Destination replyTo, String id, String payload) {
 		try {
 			if(replyTo != null) {
 				MessageProducer producer = messageProducers.get(replyTo);
 				if(producer == null) {
 					log.info("Creating a new MessageProducer to use for replys.  Destination: "+replyTo.toString());
-					producer = session.createProducer(replyTo);
+					producer = jmsSession.createProducer(replyTo);
 					messageProducers.put(replyTo, producer);
 				}
-                Message requestMessage = session.createTextMessage(payload);
+                Message requestMessage = jmsSession.createTextMessage(payload);
                 requestMessage.setJMSCorrelationID(id);
                 producer.send(requestMessage);
 			}

@@ -39,6 +39,7 @@ Parameters:
 --jms.reply-to=[<reply-to-queue>]
 --jms.ttl=[<time-to-live>]
 --message=[default message | <message>]
+--message-size=[-1 | <n>] (in characters.  n less than 0 prints default message)
 --delay=[0 | <delay>] (in milliseconds)
 --nummessages=[1 | <nummessages>]
 --batchsize=[<batchsize>] (turns on transactionality for senders)
@@ -61,6 +62,16 @@ Simple send/receive:
 ##Connecting to existing queues/exchanges
 
 When connecting to existing queues and exchanges the JMS primative may have a configuration mismatch that results in an exception.  In this case use --amqp.queue/exchange instead of --jms.queue/topic.
+
+##Message size
+
+The size of the message can be set with the --message-size parameter.  This value is in characters.  A negative value (the default) tells the app to print the default message.  Greater than 0 and it will repeat the message string until it has achieved the desired number of characters.
+
+```
+--spring.profiles.active=send --message-size=100 --message=X --counter=false
+```
+
+Tip: Using message-size=0 and counter=true will simply send the counter string "[c]".
 
 ##Using Consistent Hash Exchanges
 
@@ -102,6 +113,9 @@ Consuming clients look for a JMSReplyTo queue in the message, and if they find o
 ##Poison messages
 
 Enable sending/detection of poison messages by passing the --poison.enable=true parameter.
+
+##Enabling SSL
+
 
 #Passing parameters in a file
 

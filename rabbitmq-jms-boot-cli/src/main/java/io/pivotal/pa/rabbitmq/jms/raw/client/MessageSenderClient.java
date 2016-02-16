@@ -1,6 +1,7 @@
 package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Random;
 
 import javax.jms.MessageProducer;
@@ -67,7 +68,7 @@ public class MessageSenderClient implements JMSClientWorker {
 			log.info("Sending poison messages enabled.  Poison=\""+appProperties.poisonMessage+"\" sendPercent="+appProperties.sendPoisonPercent+"%");
 		}
 	}
-
+	
 	//TODO: make sure this method is reentrant
 	public void start() throws Exception {
 
@@ -78,16 +79,7 @@ public class MessageSenderClient implements JMSClientWorker {
 				TextMessage textMessage = session.createTextMessage();
 				for (messageCounter = 0; messageCounter < appProperties.numMessages; messageCounter++) {
 					
-					//Set the message text
-					String messageText = appProperties.messageStr;
-					//Randomly poison
-					if(appProperties.sendPoisonPercent>0) {
-						if(appProperties.sendPoisonPercent>randy.nextInt(100)) {
-							messageText = appProperties.poisonMessage;
-						}
-					}
-					if(appProperties.showCounter) { messageText = "[" + messageCounter + "]" + messageText; }
-					textMessage.setText(messageText);
+					textMessage.setText(getMessage());
 					
 					//Set a few optional features based on parameters
 					if(jmsProperties.jmsPriority >= 0) {
@@ -124,4 +116,42 @@ public class MessageSenderClient implements JMSClientWorker {
 		log.warn("Stop on the message sender is currently not implemented.");
 	}
 
+	private String getMessage() {
+		StringBuffer message = new StringBuffer();
+
+		if(appProperties.showCounter) { 
+			message.append("[");
+			message.append(messageCounter);
+			message.append("]");
+		}
+
+		//Randomly poison
+		if(appProperties.sendPoisonPercent>0) {
+			if(appProperties.sendPoisonPercent>randy.nextInt(100)) {
+				message.append(appProperties.poisonMessage);
+			}
+		}
+		else
+		{
+			if(appProperties.messageSize>-1) {
+				long messageSizeTarget = appProperties.messageSize;
+				long messageSizeCurrent  = 0;
+				long messageStrLength = appProperties.messageStr.length();
+				
+				while(messageSizeCurrent < messageSizeTarget) {
+					if(messageSizeTarget-messageSizeCurrent < messageStrLength) {
+						message.append(appProperties.messageStr.substring(0, (int)(messageSizeTarget-messageSizeCurrent)));
+					}
+					else {
+						message.append(appProperties.messageStr);
+					}
+					messageSizeCurrent += appProperties.messageStr.length();
+				}
+			}
+			else {
+				message.append(appProperties.messageStr);
+			}
+		}
+		return message.toString();
+	}
 }

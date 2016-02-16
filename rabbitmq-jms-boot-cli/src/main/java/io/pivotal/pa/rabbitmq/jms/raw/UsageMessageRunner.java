@@ -31,6 +31,7 @@ public class UsageMessageRunner implements CommandLineRunner {
 		System.out.println("--jms.reply-to=[<reply-to-queue>]");
 		System.out.println("--jms.ttl=[<time-to-live>]");
 		System.out.println("--message=[default message | <message>]");
+		System.out.println("--message-size=[-1 | <n>] (in characters.  n less than 0 prints default message)");
 		System.out.println("--delay=[0 | <delay>] (in milliseconds)");
 		System.out.println("--nummessages=[1 | <nummessages>]");
 		System.out.println("--batchsize=[<batchsize>] (turns on transactionality for senders)");

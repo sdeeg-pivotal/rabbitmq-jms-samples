@@ -31,7 +31,7 @@ jms:
 delay: 0 #milliseconds between message sends
 nummessages: 1
 message: default message
-message-size: -1 #not used
+message-size: -1 #in characters
 batchsize: -1 #turns on transactions
 poison:
   send-percent: 0 #percent of messages sent that are poison
