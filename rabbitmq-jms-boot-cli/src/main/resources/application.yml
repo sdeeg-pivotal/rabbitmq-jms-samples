@@ -13,7 +13,7 @@ amqp:
   vhost: /
   exchange:
   queue:
-  routing-key: #not used
+  routing-key:
   ssl: false
 
 #JMS specific properties
