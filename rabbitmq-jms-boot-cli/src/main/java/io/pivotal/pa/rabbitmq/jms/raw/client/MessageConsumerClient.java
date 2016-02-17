@@ -13,15 +13,27 @@ public class MessageConsumerClient implements JMSClientWorker {
 
 	@Autowired
 	private Connection connection;
+	
+	@Autowired(required = false)
+	private SingleThreadedMessageListener singleThreadedMessageListener;
+	
+	private Thread singleThread = null;
 
 	@Override
 	public void initialize() throws Exception {
+		if(singleThreadedMessageListener != null) {
+			log.info("Found the singleThreadedMessageListener, creating a thread for it");
+			singleThread = new Thread(singleThreadedMessageListener);
+		}
 	}
 
 	@Override
 	public void start() throws Exception {
 		if (connection != null) {
 			connection.start();
+			if(singleThread != null) {
+				singleThread.start();
+			}
 		} else {
 			log.error("Worker being started, but connection is null");
 		}
@@ -30,6 +42,10 @@ public class MessageConsumerClient implements JMSClientWorker {
 	@Override
 	public void stop() throws Exception {
 		if (connection != null) {
+			if(singleThreadedMessageListener != null) {
+				singleThreadedMessageListener.stopListening();
+				Thread.sleep(250); //wait for the listener to stop
+			}
 			connection.stop();
 		} else {
 			log.error("Worker being stopped, but connection is null");

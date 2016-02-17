@@ -38,24 +38,11 @@ public class SimpleMessageListener implements MessageListener {
 	
 	@Override
 	public void onMessage(Message message) {
+
 		String payload = null;
 
-		//Get the payload
 		try {
-			if (message instanceof TextMessage) {
-				payload = ((TextMessage) message).getText();
-			} 
-			else if(message instanceof BytesMessage) {
-				BytesMessage bMessage = (BytesMessage) message;
-				int payloadLength = (int)bMessage.getBodyLength();
-				byte payloadBytes[] = new byte[payloadLength];
-				bMessage.readBytes(payloadBytes);
-				payload = new String(payloadBytes);
-			}
-			else {
-				log.warn("Message not recognized as a TextMessage or BytesMessage.  It is of type: "+message.getClass().toString());
-				payload = message.toString();
-			}
+			payload = getPayload(message);
 
 			String outputText = LocalTime.now().toString();
 			if(appProperties.showCounter) { outputText += "["+(messageCounter++)+"]"; }
@@ -129,6 +116,26 @@ public class SimpleMessageListener implements MessageListener {
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}		
+	}
+	
+	private String getPayload(Message message) throws Exception {
+		String payload = null;
+		
+		if (message instanceof TextMessage) {
+			payload = ((TextMessage) message).getText();
+		} 
+		else if(message instanceof BytesMessage) {
+			BytesMessage bMessage = (BytesMessage) message;
+			int payloadLength = (int)bMessage.getBodyLength();
+			byte payloadBytes[] = new byte[payloadLength];
+			bMessage.readBytes(payloadBytes);
+			payload = new String(payloadBytes);
+		}
+		else {
+			log.warn("Message not recognized as a TextMessage or BytesMessage.  It is of type: "+message.getClass().toString());
+			payload = message.toString();
+		}
+		return payload;
 	}
 
 }

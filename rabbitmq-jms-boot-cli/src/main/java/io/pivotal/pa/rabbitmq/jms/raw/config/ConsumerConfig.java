@@ -19,6 +19,7 @@ import com.rabbitmq.jms.admin.RMQDestination;
 import io.pivotal.pa.rabbitmq.jms.raw.client.JMSClientWorker;
 import io.pivotal.pa.rabbitmq.jms.raw.client.MessageConsumerClient;
 import io.pivotal.pa.rabbitmq.jms.raw.client.SimpleMessageListener;
+import io.pivotal.pa.rabbitmq.jms.raw.client.SingleThreadedMessageListener;
 import io.pivotal.pa.rabbitmq.jms.raw.properties.AMQPProperties;
 import io.pivotal.pa.rabbitmq.jms.raw.properties.AppProperties;
 import io.pivotal.pa.rabbitmq.jms.raw.properties.JMSProperties;
@@ -38,11 +39,21 @@ public class ConsumerConfig {
 	public SimpleMessageListener simpleMessageListener() {
 		return new SimpleMessageListener();
 	}
+	
+	@Bean
+	public SingleThreadedMessageListener singleThreadedMessageListener(AppProperties appProperties) {
+		SingleThreadedMessageListener singleThreadedMessageListener = null;
+		if(appProperties.poisonTryLimit>0) {
+			singleThreadedMessageListener = new SingleThreadedMessageListener();
+		}
+		return singleThreadedMessageListener;
+	}
 		
 	@Profile("consume")
 	@Bean
 	public MessageConsumer messageConsumer(Session jmsSession, 
 			                               SimpleMessageListener simpleMessageListener, 
+			                               AppProperties appProperties,
 			                               AMQPProperties amqpProperties,
 			                               JMSProperties jmsProperties) {
 		MessageConsumer messageConsumer = null;
@@ -55,12 +66,17 @@ public class ConsumerConfig {
 				messageConsumer = jmsSession.createConsumer(jmsSession.createQueue(jmsProperties.queueName));
 			}
 
-			log.info("Registering listener for queue "+jmsProperties.queueName);
-			messageConsumer.setMessageListener(simpleMessageListener);
+			if(appProperties.poisonTryLimit <= 0) {
+				log.info("Registering listener for queue "+jmsProperties.queueName);
+				messageConsumer.setMessageListener(simpleMessageListener);
+			}
+			else {
+				log.info("We're listening for poison messages, so switching from a MessageListener to single threaded mode.");
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return messageConsumer;
 	}
 	
 	@Profile("subscribe")

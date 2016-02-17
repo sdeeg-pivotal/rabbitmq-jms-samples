@@ -40,6 +40,7 @@ public class JMSClientRunner implements CommandLineRunner {
 						while ((ch = System.in.read()) != -1) {
 							if (ch == 'x' || ch == 'X') {
 								System.out.println("Exiting");
+								worker.stop();
 								break;
 							}
 							else if (ch == 'p' || ch == 'P') {
