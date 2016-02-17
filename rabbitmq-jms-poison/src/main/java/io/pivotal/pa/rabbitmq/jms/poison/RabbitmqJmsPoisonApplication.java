@@ -23,18 +23,17 @@ public class RabbitmqJmsPoisonApplication implements CommandLineRunner {
 	@Override
 	public void run(String... arg0) throws Exception {
 		boolean transacted = true;
-		int ackMode = Session.SESSION_TRANSACTED;
 		
 		RMQConnectionFactory connectionFactory = new RMQConnectionFactory();
 		connectionFactory.setUri(amqpUri);
 
 		Connection connection = connectionFactory.createConnection();
 
-		Session listenSession = connection.createSession(transacted, ackMode);
-		Session replySession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Session listenSession = connection.createSession(transacted, Session.SESSION_TRANSACTED);
+//		Session replySession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 		MessageConsumer messageConsumer = listenSession.createConsumer(listenSession.createQueue("test.queue"));
-		messageConsumer.setMessageListener(new PoisonMessageListener(listenSession, replySession));
+		messageConsumer.setMessageListener(new PoisonMessageListener(listenSession, null));
 
         connection.start();
 
