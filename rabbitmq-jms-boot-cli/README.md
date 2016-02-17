@@ -112,7 +112,7 @@ Consuming clients look for a JMSReplyTo queue in the message, and if they find o
 
 ##Poison messages
 
-Enable sending/detection of poison messages by passing the --poison.enable=true parameter.
+The client supports the ability to send/recognize "poison" messages.  These are messages that the client wants to reject.  To enable sending set --poison.send-percent to something between 1 and 100.  To enable detection on the consumer set the parameter --poison.try-limit to something greater than 0.
 
 ##Enabling SSL
 

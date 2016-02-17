@@ -38,7 +38,7 @@ public class SenderConfig {
 		try {
 			if(amqpProperties.amqpExchangeName != null && !"".equals(amqpProperties.amqpExchangeName)) {
 				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  queueName="+jmsProperties.queueName+", amqpExchangeName="+amqpProperties.amqpExchangeName);
-				messageProducer = session.createProducer((Queue)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, "", null)));
+				messageProducer = session.createProducer((Queue)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, ""+amqpProperties.amqpRoutingKey, null)));
 			}
 			else {
 				log.info("Creating MessageProducer using JMS Queue obj for queueName="+jmsProperties.queueName);
@@ -61,7 +61,7 @@ public class SenderConfig {
 		try {
 			if(amqpProperties.amqpExchangeName != null && !"".equals(amqpProperties.amqpExchangeName)) {
 				log.info("rmqExchangeName is set, using native RMQDestination to create MessageProducer.  topicName="+jmsProperties.topicName+", amqpExchangeName="+amqpProperties.amqpExchangeName);
-				messageProducer = session.createProducer((Topic)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, null, null)));
+				messageProducer = session.createProducer((Topic)(new RMQDestination(amqpProperties.amqpExchangeName, amqpProperties.amqpExchangeName, ""+amqpProperties.amqpRoutingKey, null)));
 			}
 			else {
 				log.info("Creating MessageProducer using JMS Queue obj for topicName="+jmsProperties.topicName);

@@ -71,9 +71,13 @@ public class SimpleMessageListener implements MessageListener {
 				//TODO: add logic to take into account batch-size parameter
 				if(jmsSession.getTransacted()) { jmsSession.commit(); }
 				replyToMessageIfNecessary(message.getJMSReplyTo(), message.getJMSMessageID(), payload);
-			}			
+			}
 			
-		} catch (JMSException e) {
+			if(appProperties.delay > 0) {
+				Thread.sleep(appProperties.delay);
+			}
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
