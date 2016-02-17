@@ -1,7 +1,6 @@
 package io.pivotal.pa.rabbitmq.jms.raw.client;
 
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.Random;
 
 import javax.jms.MessageProducer;
@@ -128,6 +127,7 @@ public class MessageSenderClient implements JMSClientWorker {
 		//Randomly poison
 		if(appProperties.sendPoisonPercent>0) {
 			if(appProperties.sendPoisonPercent>randy.nextInt(100)) {
+				log.info("Sending poison");
 				message.append(appProperties.poisonMessage);
 			}
 		}
