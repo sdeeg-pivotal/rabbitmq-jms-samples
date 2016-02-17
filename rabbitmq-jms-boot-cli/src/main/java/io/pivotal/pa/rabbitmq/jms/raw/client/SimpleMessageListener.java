@@ -68,25 +68,17 @@ public class SimpleMessageListener implements MessageListener {
 			e.printStackTrace();
 		}
 	}
-	
 
-	//TODO: hack, use this to count how many times we've tried a message.  This kills the infinite loop.
-	private HashMap<String,Integer> messageTryCounts = new HashMap<String,Integer>();
 	private void handlePoison(Message message) {
 		try {
-			Integer messageTryCount = new Integer(0);
-//			if(message.propertyExists("MessageTryCount")) {
-//				String messageTryCountStr = message.getStringProperty("MessageTryCount");
-//				messageTryCount = Integer.parseInt(messageTryCountStr);
-//			}
-			if(messageTryCounts.containsKey(message.getJMSMessageID())) {
-				messageTryCount = messageTryCounts.get(message.getJMSMessageID());
+			int messageTryCount = message.getJMSRedelivered() ? 2 : 1;
+			if(appProperties.poisonTryLimit > 2) {
+				log.warn("The app currently only supports try limits of 1 and 2.  Setting try-limit to 2");
+				appProperties.poisonTryLimit = 2;
 			}
-			messageTryCount++;
-			if(messageTryCount < appProperties.poisonTryLimit) {
+			
+			if(appProperties.poisonTryLimit == 2 && messageTryCount == 1) { //re-queue the message by issuing a rollback
 				log.info("Try limit is "+appProperties.poisonTryLimit+" and messageTryCount is "+messageTryCount+", requeueing.");
-				//Dump some info on the message that tells us how many tries there have been.
-				messageTryCounts.put(message.getJMSMessageID(), messageTryCount);
 				jmsSession.rollback();
 			}
 			else {
