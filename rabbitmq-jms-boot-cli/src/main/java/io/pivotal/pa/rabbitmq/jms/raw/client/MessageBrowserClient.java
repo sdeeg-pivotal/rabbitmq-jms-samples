@@ -71,22 +71,22 @@ public class MessageBrowserClient implements JMSClientWorker {
 	// TODO: make sure this method is reentrant
 	public void start() throws Exception {
 
-		if (jmsSession != null) {
+		if (queueBrowser != null) {
 			String queueName = ((RMQDestination) queueBrowser.getQueue()).getQueueName();
 			System.out.println(
-					"Browsing " + appProperties.numMessages + " messages with a delay of " + appProperties.delay
-							+ " and payload \"" + appProperties.messageStr + "\" to destination " + queueName);
+					"Browsing " +  " messages with a delay of " + appProperties.delay
+							+  "\" from destination " + queueName);
 
 			try {
 				Queue queue = queueBrowser.getQueue();
 				Enumeration msgs = queueBrowser.getEnumeration();
 
 				if (!msgs.hasMoreElements()) {
-					System.out.println("No messages in queue");
+					System.out.println("No more messages to browse in queue");
 				} else {
 					while (msgs.hasMoreElements()) {
-						TextMessage tempMsg = (TextMessage) msgs.nextElement();
-						System.out.println("Browsing Message: " + tempMsg.getText());
+						Message tempMsg =  (Message)msgs.nextElement();
+						System.out.println("Browsing Message: " + tempMsg);
 					}
 				}
 
