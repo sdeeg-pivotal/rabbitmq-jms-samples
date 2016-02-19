@@ -33,7 +33,4 @@ public class AMQPProperties {
 	@Value("${amqp.exchange}")
 	public String amqpExchangeName;
 
-	@Value("${amqp.routing-key}")
-	public String amqpRoutingKey;
-
 }

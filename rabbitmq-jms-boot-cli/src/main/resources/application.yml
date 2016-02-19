@@ -11,9 +11,8 @@ amqp:
   password: guest
   port: 5672
   vhost: /
-  exchange:
-  queue:
-  routing-key:
+  exchange: #Used by senders/publishers.  amqp.queue | jms.queue are use for routing.
+  queue: #Use by consumers (not subscribers)
   ssl: false
 
 #JMS specific properties

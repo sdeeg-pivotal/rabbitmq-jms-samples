@@ -46,7 +46,7 @@ Parameters:
 --counter=[true | <true|false> ] (turns on/off display of counter in consumer and prepending of counter in senders)
 --poison.send-percent=[0 | <0-100>] (>0 turns on)
 --poison.message=[default | <message>]
---poison.try-limit=[0 | <n>] (>0 turns on poison monitoring)
+--poison.try-limit=[0 | <0|1|2>] (>0 turns on poison monitoring)
 --poison.backout-queue=[backout.queue | <backout-queue>]
 ```
 
@@ -114,8 +114,7 @@ Consuming clients look for a JMSReplyTo queue in the message, and if they find o
 
 The client supports the ability to send/recognize "poison" messages.  These are messages that the client wants to reject.  To enable sending set --poison.send-percent to something between 1 and 100.  To enable detection on the consumer set the parameter --poison.try-limit to something greater than 0.
 
-##Enabling SSL
-
+Note: the client currently only supports levels 0 (off), 1, and 2.  This is because we lack a counter for how many time the message has been delivered.  JMS only supports message.getJMSRedelivered() which is a boolean.  The app could potentially use message properties, but this is difficult in JMS where properties are considered immutable in delivered objects.
 
 #Passing parameters in a file
 

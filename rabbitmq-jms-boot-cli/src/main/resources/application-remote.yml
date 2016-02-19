@@ -1,12 +1,10 @@
+#Sample config for use with remote profile
 amqp:
   uri: amqp://admin:admin@headless1/%2F
 logging:
   level:
     org:
       springframework: WARN
-#    com:
-#      rabbitmq: 
-#        jms: TRACE
     io:
       pivotal:
         pa: INFO
